@@ -7,7 +7,7 @@ import scipy as scipy
 from root_mask import *
 
 def main():
-    image_path = "/Users/antoantony/9-30/KO/KO 10 um T0/KO 10 um_4.bmp"
+    image_path = "/Users/antoantony/9-30/KO/KO 10 um T0/KO 10 um_6.bmp"
     image_gray = make_grayscale_image(image_path)
     mask = create_binary_mask(image_gray)
     # 4x4 kernel with adaptive threshold (this actually seems to make it worse, so maybe ignore this part)
