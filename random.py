@@ -15,6 +15,16 @@ components = connected_components(hair_candidate_mask)
 
 accepted_hairs = []
 
+# 4. For each component:
+#    - extract component
+#    - compute endpoints / branchpoints
+#    - reject if branched/intersecting
+#    - measure geodesic endpoint-to-endpoint length
+#    - convert px -> um
+#    - reject if outside lab range
+#    - check distance to main-root boundary
+#    - keep if attached or near-attached
+
 for comp in components:
     # basic geometric filtering
     if area_too_small(comp):
