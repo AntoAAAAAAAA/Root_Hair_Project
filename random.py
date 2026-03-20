@@ -68,3 +68,68 @@ for comp in components:
         "tip": tip,
         "length": length
     })
+
+
+### ChatGPT generated idea for geodesic length without using convolution 
+import numpy as np
+
+def analyze_component(mask):
+    """
+    mask: binary 2D array with one connected component only (0/1)
+    returns a dict with endpoints, branchpoints, n_ortho, n_diag, total_edges, length_pixels
+    """
+
+    coords = np.argwhere(mask > 0)
+    pixel_set = set(map(tuple, coords))
+    # pixel_set = {tuple(x) for x in coords}
+
+    # 8-neighbor offsets
+    neighbors8 = [
+        (-1, -1), (-1, 0), (-1, 1),
+        ( 0, -1),          ( 0, 1),
+        ( 1, -1), ( 1, 0), ( 1, 1)
+    ]
+
+    # Only forward directions so each edge is counted once
+    ortho_dirs = [(0, 1), (1, 0)]
+    diag_dirs  = [(1, 1), (1, -1)]
+
+    degrees = []
+    n_ortho = 0
+    n_diag = 0
+
+    for r, c in coords:
+        degree = 0
+
+        # degree count
+        for dr, dc in neighbors8:
+            if (r + dr, c + dc) in pixel_set:
+                degree += 1
+        degrees.append(degree)
+
+        # count orthogonal edges once
+        for dr, dc in ortho_dirs:
+            if (r + dr, c + dc) in pixel_set:
+                n_ortho += 1
+
+        # count diagonal edges once
+        for dr, dc in diag_dirs:
+            if (r + dr, c + dc) in pixel_set:
+                n_diag += 1
+
+    degrees = np.array(degrees)
+    endpoints = int(np.sum(degrees == 1))
+    branchpoints = int(np.sum(degrees > 2))
+    total_edges = n_ortho + n_diag
+    length_pixels = n_ortho + n_diag * np.sqrt(2)
+
+    return {
+        "num_pixels": int(len(coords)),
+        "endpoints": endpoints,
+        "branchpoints": branchpoints,
+        "n_ortho": int(n_ortho),
+        "n_diag": int(n_diag),
+        "total_edges": int(total_edges),
+        "length_pixels": float(length_pixels),
+        "degrees": degrees
+    }
