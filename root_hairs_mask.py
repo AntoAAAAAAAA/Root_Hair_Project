@@ -7,7 +7,7 @@ import scipy as scipy
 def createNewRootHairMask(image_grey, mask_closed_contour):
     '''This function creates a new mask for root hairs using adaptive thresholding.'''
 
-    better_adapt = cv2.adaptiveThreshold(image_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 8)
+    better_adapt = cv2.adaptiveThreshold(image_grey, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 8)
     root_hair_mask = better_adapt.copy()
     expanded_root_mask = cv2.dilate(mask_closed_contour, np.ones((7,7), np.uint8), iterations=1)
     root_hair_mask[expanded_root_mask > 0] = 0
@@ -22,7 +22,7 @@ def skeletonizeRootHairMask(root_hair_mask):
 
     return skeletonized_hairs
 
-def addMainRootToSkeletonizedHairs(skeletonized_hairs):
+def addMainRootToSkeletonizedHairs(skeletonized_hairs, contour):
     'This function adds the main root boundary countour to skeletonized hairs to make a version with contours.'
 
     skeletonized_hairs_with_contours = skeletonized_hairs.copy()
@@ -30,7 +30,7 @@ def addMainRootToSkeletonizedHairs(skeletonized_hairs):
 
     return skeletonized_hairs_with_contours
 
-def makeValidRootHairMasks(skeletonized_hairs, microscope_conversion_factor = 3.93626769):
+def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor = 3.93626769):
     ''''This function takes each component of the skeletonized hair mask and filters valid root hairs '
     The function chooses root hairs based on connectivity to main root, length parameters, the validity of endpoints, 
     and lack of branching.
@@ -163,7 +163,7 @@ def makeValidRootHairMasks(skeletonized_hairs, microscope_conversion_factor = 3.
     return valid_root_hair_masks, components_masks
 
 
-def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks)
+def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
     ' This function creates an overlay of the filtered root hairs on top of the original grayscale image.'
 
     color_root = cv2.cvtColor(image_grey, cv2.COLOR_GRAY2RGB)
