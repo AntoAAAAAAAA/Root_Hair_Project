@@ -4,23 +4,56 @@ import numpy as np
 import skimage as sk
 import scipy as scipy
 
-from root_mask import *
+from main_root_mask import *
+from root_hairs_mask import *
 
-def main():
-    image_path = "/Users/antoantony/9-30/KO/KO 10 um T0/KO 10 um_6.bmp"
-    image_gray = make_grayscale_image(image_path)
-    mask = create_binary_mask(image_gray)
+def main(image_path, microscope_conversion_factor):
+
+    # Creation of main root mask 
+    image_grey = makeGrayscaleImage(image_path)
+    mask = createBinaryMask(image_grey)
     # 4x4 kernel with adaptive threshold (this actually seems to make it worse, so maybe ignore this part)
     # mask = adaptive_threshold(mask, block_size=35, C=8)
-    CC_mask = create_connected_component_mask(mask)
-    closed_mask = create_morphologically_closed_mask(CC_mask)
-    final_mask = create_contours_and_fill(closed_mask)
-    final_overlay = overlay_mask_on_image(image_gray, final_mask)
+    CC_mask = createConnectedComponentMask(mask)
+    closed_mask = createMorphologicallyClosedMask(CC_mask)
+    final_mask = createContoursAndFill(closed_mask) #this is mask_closed_contour
+    final_overlay = overlayMaskOnImage(image_grey, final_mask)
 
-    plt.imshow(final_overlay, cmap='gray')
-    plt.axis('off')
-    plt.title('Final Overlay of Mask on Original Image')
+    #Creation of root hair mask, filtering of valid root hairs, and measurement
+    root_hair_mask = createNewRootHairMask(image_grey, final_mask)
+    skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
+    skeletonized_hairs_with_contours = addMainRootToSkeletonizedHairs(skeletonized_hairs)
+    valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, microscope_conversion_factor)
+    root_hair_overlay = makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks)
+
+    fig, ax = plt.subplots(3, 3, figsize=(30, 20))
+    ax[0, 0].imshow(image_grey, cmap='gray')
+    ax[0, 0].set_title('Original Grayscale Image')
+    ax[0, 0].axis('off')
+    ax[0, 1].imshow(final_mask, cmap='gray')
+    ax[0, 1].set_title('Closed Contour Mask')
+    ax[0, 1].axis('off')
+    ax[0, 2].imshow(root_hair_mask, cmap='gray')
+    ax[0, 2].set_title('Root Hair Mask (Better Adaptive Threshold - Closed Contour)')
+    ax[0, 2].axis('off')
+    ax[1, 0].imshow(skeletonized_hairs, cmap='gray')
+    ax[1, 0].set_title('Skeletonized Root Hairs')
+    ax[1, 0].axis('off')
+    ax[1, 1].imshow(skeletonized_hairs_with_contours, cmap='gray')
+    ax[1, 1].set_title('Skeletonized Root Hairs with Contours')
+    ax[1, 1].axis('off')
+    ax[1, 2].imshow(components_masks, cmap='nipy_spectral')
+    ax[1, 2].set_title('Labeled Components')
+    ax[1, 2].axis('off')
+    ax[2, 1].imshow(root_hair_overlay, cmap='nipy_spectral')
+    ax[2, 0].set_title('Final Labeled Components after filtering')
+    ax[2, 0].axis('off')
+    fig.delaxes(ax[2,0])
+    fig.delaxes(ax[2,2])
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
-    main()
+    image_path = "/Users/antoantony/9-30/KO/KO 10 um T0/KO 10 um_6.bmp"
+    microscope_conversion_factor = 3.93626769
+    main(image_path, microscope_conversion_factor)
