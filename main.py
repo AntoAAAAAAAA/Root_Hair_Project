@@ -26,7 +26,7 @@ def main(image_path, microscope_conversion_factor):
     valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor)
     root_hair_overlay = makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks)
 
-    fig, ax = plt.subplots(3, 3, figsize=(15,8))
+    fig, ax = plt.subplots(3, 3, figsize=(8,8))
     ax[0, 0].imshow(image_grey, cmap='gray')
     ax[0, 0].set_title('Original Grayscale Image')
     ax[0, 0].axis('off')
@@ -49,10 +49,15 @@ def main(image_path, microscope_conversion_factor):
     ax[2, 0].set_title('Labeled Components')
     ax[2, 0].axis('off')
     ax[2, 1].imshow(root_hair_overlay, cmap='nipy_spectral')
-    ax[2, 1].set_title('Final Labeled Components after filtering')
+    ax[2, 1].set_title('Final Labeled Hairs (in red)')
     ax[2, 1].axis('off')
     # fig.delaxes(ax[2,0])
     fig.delaxes(ax[2,2])
+    plt.tight_layout()
+    plt.show()
+
+    plt.imshow(root_hair_overlay, cmap='nipy_spectral')
+    plt.axis('off')
     plt.tight_layout()
     plt.show()
 
