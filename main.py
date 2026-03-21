@@ -16,14 +16,14 @@ def main(image_path, microscope_conversion_factor):
     # mask = adaptive_threshold(mask, block_size=35, C=8)
     CC_mask = createConnectedComponentMask(mask)
     closed_mask = createMorphologicallyClosedMask(CC_mask)
-    final_mask = createContoursAndFill(closed_mask) #this is mask_closed_contour
+    final_mask, contour = createContoursAndFill(closed_mask) #this is mask_closed_contour
     final_overlay = overlayMaskOnImage(image_grey, final_mask)
 
     #Creation of root hair mask, filtering of valid root hairs, and measurement
     root_hair_mask = createNewRootHairMask(image_grey, final_mask)
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
-    skeletonized_hairs_with_contours = addMainRootToSkeletonizedHairs(skeletonized_hairs)
-    valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, microscope_conversion_factor)
+    skeletonized_hairs_with_contours = addMainRootToSkeletonizedHairs(skeletonized_hairs, contour)
+    valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor)
     root_hair_overlay = makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks)
 
     fig, ax = plt.subplots(3, 3, figsize=(30, 20))
@@ -45,10 +45,13 @@ def main(image_path, microscope_conversion_factor):
     ax[1, 2].imshow(components_masks, cmap='nipy_spectral')
     ax[1, 2].set_title('Labeled Components')
     ax[1, 2].axis('off')
-    ax[2, 1].imshow(root_hair_overlay, cmap='nipy_spectral')
-    ax[2, 0].set_title('Final Labeled Components after filtering')
+    ax[2, 0].imshow(final_overlay, cmap='nipy_spectral')
+    ax[2, 0].set_title('Final_overlay')
     ax[2, 0].axis('off')
-    fig.delaxes(ax[2,0])
+    ax[2, 1].imshow(root_hair_overlay, cmap='nipy_spectral')
+    ax[2, 1].set_title('Final Labeled Components after filtering')
+    ax[2, 1].axis('off')
+    # fig.delaxes(ax[2,0])
     fig.delaxes(ax[2,2])
     plt.tight_layout()
     plt.show()

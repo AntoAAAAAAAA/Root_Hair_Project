@@ -88,7 +88,7 @@ def createContoursAndFill(mask):
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     mask_closed_contour = np.zeros_like(mask)
     cv2.drawContours(mask_closed_contour, contours, -1, 255, -1)
-    return mask_closed_contour
+    return mask_closed_contour, contours
 
 def overlayMaskOnImage(image_gray, final_mask):
     '''This function takes the original grayscale image and the final mask, and creates an overlay where the mask area is highlighted in red.'''
