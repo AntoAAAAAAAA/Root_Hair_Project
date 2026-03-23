@@ -62,6 +62,6 @@ def main(image_path, microscope_conversion_factor):
     plt.show()
 
 if __name__ == "__main__":
-    image_path = "/Users/antoantony/9-30/KO/KO 10 um T0/KO 10 um_1.bmp"
-    microscope_conversion_factor = 3.93626769
+    image_path = "/Users/antoantony/9-30/KO/KO 10 um T0/KO 10 um_2.bmp"
+    microscope_conversion_factor = 3.393626769
     main(image_path, microscope_conversion_factor)
