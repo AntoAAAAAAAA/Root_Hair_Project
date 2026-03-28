@@ -136,9 +136,14 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
         if not endpoint_near_root:
             continue 
 
+        kernel = np.ones((4,4), np.uint8)
+        thicker_mask = cv2.dilate(one_component_mask, kernel, iterations=1)
+
+
         valid_root_hair_masks.append({
             'id': i,
             'mask': one_component_mask,
+            'thicker mask': thicker_mask,
             'length': length,
             'length in microns': length_in_microns,
         })
@@ -171,7 +176,7 @@ def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
     for i in range(0, len(valid_root_hair_masks)):
         valid_dict = valid_root_hair_masks[i]
         ind_mask = (valid_dict['mask'] * 255).astype(np.uint8)
-        overlay[ind_mask == 255] = [255, 0 , 0]
+        overlay[ind_mask == 255] = [0, 0 , 255]
     root_hair_overlay = cv2.addWeighted(color_root, 0.2, overlay, 0.8, 0)
 
     return root_hair_overlay
