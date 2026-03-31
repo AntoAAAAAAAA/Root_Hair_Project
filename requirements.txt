@@ -3,5 +3,5 @@ numpy
 scikit-image
 scipy
 plotly
-opencv-python
+opencv-python-headless
 matplotlib
