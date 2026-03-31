@@ -1,6 +1,6 @@
 streamlit
 numpy
-skimage
+scikit-image
 scipy
 plotly
 cv2
