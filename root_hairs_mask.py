@@ -30,7 +30,7 @@ def addMainRootToSkeletonizedHairs(skeletonized_hairs, contour):
 
     return skeletonized_hairs_with_contours
 
-def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor = 3.93626769):
+def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor):
     ''''This function takes each component of the skeletonized hair mask and filters valid root hairs '
     The function chooses root hairs based on connectivity to main root, length parameters, the validity of endpoints, 
     and lack of branching.
@@ -120,9 +120,11 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
         # need to compare one_component_mask to contour
         coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
         coords_of_endpoints = [(y + y_min, x + x_min) for y,x in coords_of_endpoints]
-        
-        coords_of_contour = np.squeeze(contour[0])
-        coords_of_contour = set(map(tuple, coords_of_contour))
+                
+        # coords_of_contour = np.squeeze(contour[0])
+        # coords_of_contour = set(map(tuple, coords_of_contour))
+        coords_of_contour = contour[0].reshape(-1, 2)
+        coords_of_contour = set(map(tuple, coords_of_contour.tolist()))
 
         endpoint_near_root = False
         for y,x in coords_of_endpoints:

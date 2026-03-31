@@ -19,7 +19,7 @@ def main(image_gray, microscope_conversion_factor):
     # mask = adaptive_threshold(mask, block_size=35, C=8)
     CC_mask = createConnectedComponentMask(mask)
     closed_mask = createMorphologicallyClosedMask(CC_mask)
-    final_mask, contour = createContoursAndFill(closed_mask) #this is mask_closed_contour
+    final_mask, contours = createContoursAndFill(closed_mask) #this is mask_closed_contour
     # final_overlay = overlayMaskOnImage(image_gray, final_mask)
 
 
@@ -28,7 +28,7 @@ def main(image_gray, microscope_conversion_factor):
     root_hair_mask = createNewRootHairMask(image_gray, final_mask)
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
     # skeletonized_hairs_with_contours = addMainRootToSkeletonizedHairs(skeletonized_hairs, contour)
-    valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor)
+    valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contours, microscope_conversion_factor)
     # root_hair_overlay = makeFinalMaskWithFinalRootHairs(image_gray, valid_root_hair_masks)
 
     # fig, ax = plt.subplots(3, 3, figsize=(8,8))
@@ -69,7 +69,9 @@ def main(image_gray, microscope_conversion_factor):
     fig = makeFinalPlotlyVisual(image_gray, valid_root_hair_masks)
     return fig
 
+
 # if __name__ == "__main__":
-#     image_path = "/Users/antoantony/9-30/KO/KO 10 um T0/KO 10 um_2.bmp"
+#     image_path = "/Users/antoantony/9-30/KO/KO_10_um_T0/KO_10_um_1.bmp"
 #     microscope_conversion_factor = 3.393626769
-#     main(image_path, microscope_conversion_factor)
+#     fig = main(image_path, microscope_conversion_factor)
+#     fig.show(renderer="browser")
