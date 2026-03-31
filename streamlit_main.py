@@ -12,6 +12,7 @@ if 'conversion factor' not in st.session_state:
 
 st.title('Root Hair Analyzer')
 
+### -----Microscope convertion factor--------
 microscope_conversion_factor = st.number_input(
     'Microscope Conversion Factor:', 
     min_value=0.0, 
@@ -26,6 +27,8 @@ uploaded_file = st.file_uploader(
     type=["bmp", "png", "jpg", "jpeg", "tif", "tiff"],
     key='1'
 )
+uploaded_file.seek(0) # reset file pointer to the beginnign for next read 
+
 image_gray = None
 if uploaded_file is not None:
     # file_bytes = np.asarray(bytearray(uploaded_file.getvalue()), dtype=np.uint8)
@@ -33,8 +36,7 @@ if uploaded_file is not None:
     image_gray = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)
     st.session_state['image1'] = image_gray
 
-
-    st.image(image_gray, caption="Grayscale image")
+    st.image(image_gray, caption="Grayscale image", )
 
 st.text('')
 st.text('')
@@ -66,11 +68,12 @@ else:
 
 When user hits analyze
 If: there is an image in session state
-- run main using that image in the session state
+- analyze that image using main()
 - save the resulting fig to session state
 - if there is a present plotly figure
-    - 
+    - display it 
 else:
+- error message that says 'no file uploaded' or something like that 
 
 
 
