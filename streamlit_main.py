@@ -22,6 +22,7 @@ microscope_conversion_factor = st.number_input(
 
 st.session_state['conversion factor'] = microscope_conversion_factor
 
+### -----Image upload and display--------
 uploaded_file = st.file_uploader(
     "Upload an image",
     type=["bmp", "png", "jpg", "jpeg", "tif", "tiff"],
@@ -47,7 +48,7 @@ st.text('')
 st.text('')
 
 if st.button("Analyze", key='analysis1'):
-    fig1 = main(image_gray, microscope_conversion_factor)
+    fig1 = main(image_gray, microscope_conversion_factor, upper, lower)
     fig1.update_layout(autosize = False,
                     width = 1000,
                     height = 800)

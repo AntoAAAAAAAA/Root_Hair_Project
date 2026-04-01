@@ -30,7 +30,7 @@ def addMainRootToSkeletonizedHairs(skeletonized_hairs, contour):
 
     return skeletonized_hairs_with_contours
 
-def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor):
+def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_factor, upper, lower):
     ''''This function takes each component of the skeletonized hair mask and filters valid root hairs '
     The function chooses root hairs based on connectivity to main root, length parameters, the validity of endpoints, 
     and lack of branching.
@@ -114,7 +114,7 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
         # filter root hairs that aren't good for measuring 
         if endpoints != 2 or branchpoints:
             continue 
-        if length_in_microns > 100 or length_in_microns < 30: 
+        if length_in_microns > upper or length_in_microns < lower: 
             continue 
 
         # need to compare one_component_mask to contour
