@@ -30,6 +30,25 @@ microscope_conversion_factor = st.number_input(
 
 st.session_state['conversion factor'] = microscope_conversion_factor
 
+### -----Length parameters--------
+
+column1, column2 = st.columns(2)
+with column1:
+    upper = st.number_input(
+        'Upper length threshold (in microns):', 
+        min_value=0.0, 
+        step=0.1, 
+        format='%.1f',
+        value= 100.0)
+
+with column2:
+    lower = st.number_input(
+        'Lower length threshold (in microns):', 
+        min_value=0.0, 
+        step=0.1, 
+        format='%.1f',
+        value= 30.0)
+
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
 
@@ -60,7 +79,7 @@ with col1:
 
     if st.button("Analyze", key='analysis1'):
         imageToAnalyze = st.session_state['image1']
-        fig1 = main(imageToAnalyze, microscope_conversion_factor)
+        fig1 = main(imageToAnalyze, microscope_conversion_factor, upper, lower)
         fig1.update_layout(autosize = False,
                         width = 1000,
                         height = 800)
@@ -96,7 +115,7 @@ with col2:
 
     if st.button("Analyze", key='analysis2'):
         imageToAnalyz2 = st.session_state['image2']
-        fig2 = main(imageToAnalyz2, microscope_conversion_factor)
+        fig2 = main(imageToAnalyz2, microscope_conversion_factor, upper, lower)
         fig2.update_layout(autosize = False,
                         width = 1000,
                         height = 800)
