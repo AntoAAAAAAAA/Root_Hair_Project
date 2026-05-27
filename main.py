@@ -4,6 +4,7 @@ import numpy as np
 import skimage as sk
 import scipy as scipy
 import plotly as plot
+from ultralytics import SAM
 
 from main_root_mask import *
 from root_hairs_mask import *

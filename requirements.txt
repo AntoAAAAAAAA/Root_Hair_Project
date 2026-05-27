@@ -5,3 +5,4 @@ scipy
 plotly
 opencv-python-headless
 matplotlib
+ultralytics
