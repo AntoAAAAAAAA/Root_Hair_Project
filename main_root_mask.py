@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import skimage as sk
 import scipy as scipy
+from ultralytics import SAM
 
 def makeGrayscaleImage(image_path):
     '''This function reads an image from a path and converts it to grayscale.'''
