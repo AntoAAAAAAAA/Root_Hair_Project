@@ -4,12 +4,12 @@ import numpy as np
 import skimage as sk
 import scipy as scipy
 
-def createNewRootHairMask(image_grey, mask_closed_contour):
+def createNewRootHairMask(image_grey, main_root):
     '''This function creates a new mask for root hairs using adaptive thresholding.'''
 
     better_adapt = cv2.adaptiveThreshold(image_grey, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 8)
     root_hair_mask = better_adapt.copy()
-    expanded_root_mask = cv2.dilate(mask_closed_contour, np.ones((7,7), np.uint8), iterations=1)
+    expanded_root_mask = cv2.dilate(main_root, np.ones((7,7), np.uint8), iterations=1)
     root_hair_mask[expanded_root_mask > 0] = 0
 
     return root_hair_mask

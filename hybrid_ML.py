@@ -1,0 +1,57 @@
+import cv2
+from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy as scipy
+from ultralytics import SAM
+
+def hybrid_main(image, image_gray):
+    model = SAM('sam2_l.pt')
+
+    _, thresh_mask = cv2.threshold(image_gray, 130, 255, cv2.THRESH_BINARY_INV)
+    # _, otsu_mask = cv2.threshold( image_gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
+    print("Thresholding complete")
+    num_labels, labels, stats, centroids =cv2.connectedComponentsWithStats(thresh_mask)
+    largest_label = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])
+    binary_mask = (labels == largest_label).astype(np.uint8) * 255
+    
+
+    # dist_map = cv2.distanceTransform(binary_mask, cv2.DIST_L2, 5)
+    # Imma try putting the otsu_mask into distanceTransform instead of the binary
+    dist_map = cv2.distanceTransform(thresh_mask, cv2.DIST_L2, 5)
+    core = (dist_map >= 5).astype(np.uint8) * 255
+    print("Distance transform complete")
+
+    # new_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,10)) #vert kernel
+    # new_opened = cv2.morphologyEx(core, cv2.MORPH_OPEN, new_kernel)
+
+    pts = cv2.findNonZero(core)
+    x, y, w, h = cv2.boundingRect(pts) 
+    # (x,y) is top left. +x is going right, +y is going down
+    # coordinates are (x,y), (x+h,y), (x,y+w), (x+w,y+h)
+    # bounded_rect = cv2.rectangle(image_gray.copy(), (x, y), (x+w, y+h), (255,0,0), 2)
+    print("Bounding rectangle complete")
+
+    print("SAM prediction initialized...")
+    results = model.predict(image, bboxes = [[x, y, x+w, y+h]])
+    print("SAM prediction complete")
+
+    # annotated = results[0].plot()
+
+
+    # Creation of root hair mask
+    sam_mask = results[0].masks.data[0].cpu().numpy()
+    sam_mask_grayscale = (sam_mask > 0).astype(np.uint8) * 255
+    # sam_mask_grayscale_resized = cv2.resize(sam_mask_grayscale, 
+    #                                 (image_gray.shape[1], image_gray.shape[0]),
+    #                                 interpolation=cv2.INTER_NEAREST
+                                    # )
+    
+    # expanded_sam_grayscale = cv2.dilate(sam_mask_grayscale, np.ones((3,3), np.uint8), iterations=1)
+    
+    # final_subtracted_mask = cv2.subtract(otsu_mask, sam_mask_grayscale_resized)
+    final_subtracted_mask = thresh_mask.copy()
+    final_subtracted_mask[sam_mask_grayscale > 0] = 0
+    
+    return sam_mask_grayscale, final_subtracted_mask
