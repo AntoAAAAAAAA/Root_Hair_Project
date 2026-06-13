@@ -84,7 +84,7 @@ def createMorphologicallyClosedMask(mask, x=7):
     return closed_mask
 
 def createContoursAndFill(mask):
-    '''This function takes a binary mask as input, finds the primary contour of the main root, and fills it in to create a solid mask. It returns a new binary mask where the main root is fully filled in.'''
+    '''This function takes a binary mask of the main root as input, finds the primary contour of the main root, and fills it in to create a solid mask. It returns a new binary mask where the main root is fully filled in.'''
     
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     mask_closed_contour = np.zeros_like(mask)

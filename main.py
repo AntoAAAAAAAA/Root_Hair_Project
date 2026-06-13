@@ -20,13 +20,13 @@ def main(image_gray, microscope_conversion_factor, upper, lower):
     # mask = adaptive_threshold(mask, block_size=35, C=8)
     CC_mask = createConnectedComponentMask(mask)
     closed_mask = createMorphologicallyClosedMask(CC_mask)
-    final_mask, contours = createContoursAndFill(closed_mask) #this is mask_closed_contour
+    main_root, contours = createContoursAndFill(closed_mask) #this is mask_closed_contour
     # final_overlay = overlayMaskOnImage(image_gray, final_mask)
 
 
     #Creation of root hair mask, filtering of valid root hairs, and measurement
     
-    root_hair_mask = createNewRootHairMask(image_gray, final_mask)
+    root_hair_mask = createNewRootHairMask(image_gray, main_root)
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
     # skeletonized_hairs_with_contours = addMainRootToSkeletonizedHairs(skeletonized_hairs, contour)
     valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
