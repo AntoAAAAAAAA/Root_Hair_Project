@@ -15,7 +15,9 @@ from hybrid_ML import *
 def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
     
     # Creation of main root mask 
-    sam_mask_grayscale, root_hair_mask  = hybrid_main(image, image_gray)
+    sam_mask_grayscale, root_hair_mask  = hybrid_main2(image, image_gray)
+
+    # Creat root hair mask
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
     mask_closed_contour, contours = createContoursAndFill(sam_mask_grayscale)
     valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
@@ -42,7 +44,7 @@ if __name__ == "__main__":
 
 
     '''To find root_hair mask of one image with its path.'''
-    image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/134.bmp'
+    image_path = '/Users/antoantony/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/2. Sophomore/Fall Semester/Discovering Signals/Images/9-30/WT/WT 10 um T0/WT10 um T0 _1.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
     fig, root_hair_mask = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
