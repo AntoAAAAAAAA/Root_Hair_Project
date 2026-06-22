@@ -2,6 +2,7 @@ import plotly.express as px
 import cv2
 import plotly.graph_objects as go
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
@@ -52,3 +53,20 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
     fig.update_yaxes(visible=False)
     # fig.show()
     return fig 
+
+def makeVisualOfContours(image_gray, contours):
+    blank = np.zeros_like(image_gray)
+
+    cv2.drawContours(
+        blank,
+        contours,
+        -1,
+        255,
+        1
+    )
+
+    # plt.imshow(blank, cmap='gray')
+    # plt.axis('off')
+    # plt.show()
+
+    return blank
