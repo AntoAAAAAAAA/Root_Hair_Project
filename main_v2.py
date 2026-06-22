@@ -44,11 +44,11 @@ if __name__ == "__main__":
 
 
     '''To find root_hair mask of one image with its path.'''
-    image_path = '/Users/antoantony/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/2. Sophomore/Fall Semester/Discovering Signals/Images/9-30/WT/WT 10 um T0/WT10 um T0 _1.bmp'
+    image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/147.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
     fig, root_hair_mask = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
-                  upper=100.0, lower=30.0)
+                  upper=100.0, lower=1.0)
     fig.show(renderer="browser")
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))

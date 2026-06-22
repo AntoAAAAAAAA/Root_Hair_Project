@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import skimage as sk
 import scipy as scipy
+import os
 
 def createNewRootHairMask(image_grey, main_root):
     '''This function creates a new mask for root hairs using adaptive thresholding.'''
@@ -43,7 +44,7 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
 
     valid_root_hair_masks = []
 
-    # filtered = 0 # for testing
+    filtered = 0 # for testing
 
     for i in range(1, num_objects + 1):
         one_component_mask = (components_masks == i).astype(np.uint8)
@@ -66,6 +67,25 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
 
         cropped_component_mask = one_component_mask[y_min:y_max+1, x_min:x_max+1]
 
+        # for testing
+        # filtered += 1
+        # debugFolder = 'debug_images'
+        # os.makedirs(debugFolder, exist_ok= True)
+        # plt.figure(figsize=(5,5))
+        # plt.imshow(cropped_component_mask, cmap='gray')
+        # plt.title(f"Component {i}")
+        # plt.axis('off')
+        # plt.savefig(f'{debugFolder}/component_{i}.png', bbox_inches='tight')
+        # plt.close()
+        # print(f'''Component {i}, length: {length:.2f} pixels, 
+        #        length: {length_in_microns:.2f} microns, 
+        #        endpoints: {endpoints}, 
+        #        branchpoints: {branchpoints},
+        #        degrees: {list_of_degrees},
+        #        ortho neighbors: {num_ortho_neighbors},
+        #        diag neighbors: {num_diag_neighbors}"
+        #     ''')
+        
         # make a set of all pixels that make up the component (in tuples)
         coords = np.argwhere(cropped_component_mask > 0)
         root_hair_pixel_set = set(tuple(coordinate) for coordinate in coords)
@@ -115,7 +135,7 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
         if endpoints != 2 or branchpoints:
             continue 
         if length_in_microns > upper or length_in_microns < lower: 
-            continue 
+            continue
 
         # need to compare one_component_mask to contour
         coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
@@ -128,7 +148,7 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
 
         endpoint_near_root = False
         for y,x in coords_of_endpoints:
-            for n in range(1,8):
+            for n in range(1,8): # check if any of the pixels within a 20 pixel radius of the endpoint are in the contour
                 if (x+n, y) in coords_of_contour or (x-n, y) in coords_of_contour:
                     endpoint_near_root = True
                     break
@@ -149,24 +169,10 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
             'length': length,
             'length in microns': length_in_microns,
         })
-        
-        # for testing
-        # filtered += 1
-        # plt.imshow(cropped_component_mask, cmap='gray')
-        # plt.title(f"Component {i}")
-        # plt.axis('off')
-        # plt.show()
-        # print(f'''Component {i}, length: {length:.2f} pixels, 
-        #        length: {length_in_microns:.2f} microns, 
-        #        endpoints: {endpoints}, 
-        #        branchpoints: {branchpoints},
-        #        degrees: {list_of_degrees},
-        #        ortho neighbors: {num_ortho_neighbors},
-        #        diag neighbors: {num_diag_neighbors}"
-        #     ''')
 
-    # testing
+    # # testing
     # print(f"Number of filtered components: {filtered}")
+
     return valid_root_hair_masks, components_masks
 
 

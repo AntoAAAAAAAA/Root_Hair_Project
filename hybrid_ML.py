@@ -122,4 +122,4 @@ def hybrid_main2(image, image_gray):
     final_subtracted_mask = main_thresh.copy()
     final_subtracted_mask[expanded_root > 0] = 0
     
-    return sam_mask_grayscale, final_subtracted_mask
+    return sam_mask_grayscale, final_subtracted_mask, # overlay, binary_mask, main_thresh, core
