@@ -4,6 +4,7 @@ import numpy as np
 import skimage as sk
 import scipy as scipy
 import plotly as plot
+import plotly.express as px
 from ultralytics import SAM
 
 from main_root_mask import *
@@ -24,7 +25,7 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
 
 
     fig = makeFinalPlotlyVisual(image_gray, valid_root_hair_masks)
-    return fig, root_hair_mask
+    return fig, root_hair_mask, valid_root_hair_masks
 
 if __name__ == "__main__":
     '''To find root_hair masks and final visualizations for images in a folder.'''
@@ -47,9 +48,9 @@ if __name__ == "__main__":
     image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/147.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
-    fig, root_hair_mask = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
+    fig, root_hair_mask, valid_root_hair_masks = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
                   upper=100.0, lower=1.0)
-    fig.show(renderer="browser")
+    fig.show(renderer='browser')
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))
     ax[0].imshow(image_gray, cmap='gray')
