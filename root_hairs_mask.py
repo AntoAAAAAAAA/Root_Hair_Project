@@ -49,9 +49,9 @@ def findBranchLength(y, x, neighbors, length_per_branch, root_hair_pixel_set,
     return current_length               
 
 def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion_factor, upper, lower):
-    ''''This function takes each component of the skeletonized hair mask and filters valid root hairs '
+    ''''This function takes each component of the skeletonized hair mask and filters valid root hairs. '
     The function chooses root hairs based on connectivity to main root, length parameters, the validity of endpoints, 
-    and lack of branching.
+    and lack of branching, and measures them. 
     '''
 
     skeletonized_hairs_binary = (skeletonized_hairs > 0).astype(np.uint8)
