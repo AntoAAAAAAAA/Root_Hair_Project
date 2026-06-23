@@ -29,7 +29,7 @@ def main(image_gray, microscope_conversion_factor, upper, lower):
     root_hair_mask = createNewRootHairMask(image_gray, main_root)
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
     # skeletonized_hairs_with_contours = addMainRootToSkeletonizedHairs(skeletonized_hairs, contour)
-    valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
+    valid_root_hair_masks, components_masks = makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
     # root_hair_overlay = makeFinalMaskWithFinalRootHairs(image_gray, valid_root_hair_masks)
 
     # fig, ax = plt.subplots(3, 3, figsize=(8,8))
