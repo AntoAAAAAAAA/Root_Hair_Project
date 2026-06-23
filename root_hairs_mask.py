@@ -132,7 +132,9 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
         length_in_microns = length * microscope_conversion_factor
 
         # filter root hairs that aren't good for measuring 
-        if endpoints != 2 or branchpoints:
+        if endpoints != 2:
+            continue 
+        if branchpoints:
             continue 
         if length_in_microns > upper or length_in_microns < lower: 
             continue
