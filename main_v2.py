@@ -21,7 +21,7 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
     # Creat root hair mask
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
     mask_closed_contour, contours = createContoursAndFill(sam_mask_grayscale)
-    valid_root_hair_masks, components_masks = makeValidRootHairMasks(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
+    valid_root_hair_masks, components_masks = makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
 
 
     fig = makeFinalPlotlyVisual(image_gray, valid_root_hair_masks)
@@ -45,11 +45,11 @@ if __name__ == "__main__":
 
 
     '''To find root_hair mask of one image with its path.'''
-    image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/147.bmp'
+    image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/144.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
     fig, root_hair_mask, valid_root_hair_masks = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
-                  upper=100.0, lower=10.0)
+                  upper=200.0, lower=10.0)
     fig.show(renderer='browser')
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))
