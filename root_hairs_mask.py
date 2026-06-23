@@ -103,7 +103,7 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
         list_of_degrees = []
         num_ortho_neighbors = 0
         num_diag_neighbors = 0
-
+        length_per_branch = {}
         # for each pixel in the component:
         for y, x in coords:
             num_neighbors = 0
@@ -113,6 +113,62 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
                     num_neighbors += 1
             list_of_degrees.append(num_neighbors)
             
+            def findBranchLength(y, x, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length):
+                uniquePixelsTraversed.add((y,x))
+                if (y - 1, x - 1) in root_hair_pixel_set and (y - 1, x - 1) not in uniquePixelsTraversed:
+                    return findBranchLength(y-1, x-1, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                elif (y - 1, x) in root_hair_pixel_set and (y - 1, x) not in uniquePixelsTraversed:
+                    return findBranchLength(y-1, x, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                elif (y - 1, x + 1) in root_hair_pixel_set and (y - 1, x + 1) not in uniquePixelsTraversed:
+                    return findBranchLength(y-1, x+1, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                elif (y, x - 1) in root_hair_pixel_set and (y, x - 1) not in uniquePixelsTraversed:
+                    return findBranchLength(y, x-1, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                elif (y, x + 1) in root_hair_pixel_set and (y, x + 1) not in uniquePixelsTraversed:
+                    return findBranchLength(y, x+1, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                elif (y + 1, x - 1) in root_hair_pixel_set and (y + 1, x - 1) not in uniquePixelsTraversed:
+                    return findBranchLength(y+1, x-1, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                elif (y + 1, x) in root_hair_pixel_set and (y + 1, x) not in uniquePixelsTraversed:
+                    return findBranchLength(y+1, x, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                elif (y + 1, x + 1) in root_hair_pixel_set and (y + 1, x + 1) not in uniquePixelsTraversed:
+                    return findBranchLength(y+1, x+1, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length + 1)
+                else:
+                    return current_length
+            
+            valid_branches = True
+            if num_neighbors >= 3:
+                for dy, dx in neighbors:
+                    if (y + dy, x + dx) in root_hair_pixel_set:
+                        uniquePixelsTraversed = set()
+                        uniquePixelsTraversed.add((y+dy, x+dx))
+                        branchID = f'{dy}{dx}'
+                        length_per_branch[branchID]= findBranchLength(y+dy, x+dx, length_per_branch, root_hair_pixel_set, uniquePixelsTraversed, branchID, current_length = 0)
+                        
+                        short_branches = 0
+                        for length in length_per_branch.values():
+                            if length < 5:
+                                short_branches += 1
+                        if num_neighbors == 4 and short_branches > 2:
+                            valid_branches = False 
+                        if num_neighbors == 3 and short_branches > 1:
+                            valid_branches = False  
+            if not valid_branches:
+                continue 
+
+            '''
+            find a coordinate that has at least 3 degrees
+            find a pixel attached to it and start a counter
+            run code that finds another pixel near it that has 2 degrees and is unique 
+            - if not 2 degrees or not unique, kill the counter and don't append to dict 
+            - if there is 2 degrees and unique, add to counter and continue until reaching degree 1
+                - then, add the counter to dict
+                - reset the counter 
+
+            end dict: should have branch # w/ length of that branch. 
+            - should check that if >2 branches:
+                - and at least 2 of the branches have lengths less than 5 microns, it is fine to keep
+                - if not, then it is not valid 
+            '''
+
             # check how many orthogonal neighbors are in the component by comparing to ortho kernel
             for dy, dx in ortho_neighbors:
                 if (y + dy, x + dx) in root_hair_pixel_set:
@@ -132,10 +188,6 @@ def makeValidRootHairMasks(skeletonized_hairs, contour, microscope_conversion_fa
         length_in_microns = length * microscope_conversion_factor
 
         # filter root hairs that aren't good for measuring 
-        if endpoints != 2:
-            continue 
-        if branchpoints:
-            continue 
         if length_in_microns > upper or length_in_microns < lower: 
             continue
 
