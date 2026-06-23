@@ -8,7 +8,7 @@ import streamlit as st
 from main import *
 
 if 'conversion factor' not in st.session_state:
-    st.session_state['conversion factor'] = 0.0000000000
+    st.session_state['conversion factor'] = 0.0
 if 'image1' not in st.session_state:
     st.session_state['image1'] = None
 if 'fig1' not in st.session_state:
