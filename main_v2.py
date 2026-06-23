@@ -49,7 +49,7 @@ if __name__ == "__main__":
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
     fig, root_hair_mask, valid_root_hair_masks = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
-                  upper=100.0, lower=1.0)
+                  upper=100.0, lower=10.0)
     fig.show(renderer='browser')
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))
@@ -62,3 +62,4 @@ if __name__ == "__main__":
   
     plt.tight_layout()
     plt.show()
+    print('Finished image')
