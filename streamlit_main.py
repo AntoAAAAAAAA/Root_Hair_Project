@@ -85,13 +85,16 @@ with col1:
     st.text('')
 
     if st.button("Analyze", key='analysis1'):
-        imageToAnalyze = st.session_state['image_gray1']
-        image = st.session_state['image_color1']
-        fig1, root_hair_mask, valid_root_hair_masks= main_v2(image,imageToAnalyze, microscope_conversion_factor, upper, lower)
-        fig1.update_layout(autosize = False,
-                        width = 1000,
-                        height = 800)
-        st.session_state['fig1'] = fig1
+        if st.session_state['image_gray1']:
+            imageToAnalyze = st.session_state['image_gray1']
+            image = st.session_state['image_color1']
+            fig1, root_hair_mask, valid_root_hair_masks= main_v2(image,imageToAnalyze, microscope_conversion_factor, upper, lower)
+            fig1.update_layout(autosize = False,
+                            width = 1000,
+                            height = 800)
+            st.session_state['fig1'] = fig1
+        else:
+            st.error("No image for analysis provided or in memory")
 
     if st.session_state['fig1'] is not None:
         st.plotly_chart(st.session_state['fig1'], width='stretch')
@@ -124,13 +127,16 @@ with col2:
     st.text('')
 
     if st.button("Analyze", key='analysis2'):
-        imageToAnalyze2 = st.session_state['image_gray2']
-        image = st.session_state['image_color2']
-        fig2, root_hair_mask, valid_root_hair_masks = main_v2(image, imageToAnalyze2, microscope_conversion_factor, upper, lower)
-        fig2.update_layout(autosize = False,
-                        width = 1000,
-                        height = 800)
-        st.session_state['fig2'] = fig2
+        if st.session_state['image_gray2']:
+            imageToAnalyze2 = st.session_state['image_gray2']
+            image = st.session_state['image_color2']
+            fig2, root_hair_mask, valid_root_hair_masks = main_v2(image, imageToAnalyze2, microscope_conversion_factor, upper, lower)
+            fig2.update_layout(autosize = False,
+                            width = 1000,
+                            height = 800)
+            st.session_state['fig2'] = fig2
+        else:
+            st.error("No image for analysis provided or in memory")
 
     if st.session_state['fig2'] is not None:
         st.plotly_chart(st.session_state['fig2'], width='stretch')
