@@ -12,23 +12,24 @@ from root_hairs_mask import *
 from final_visualize import *
 from hybrid_ML import *
 
-# always include image_gray as an input for mains. Streamlit is weird with grayscale conversion
+# Note: Always include image_gray as an input for mains. Streamlit is weird with grayscale conversion, so this is necessary
 def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
     
-    # Creation of main root mask 
+    # Find main root and create root hair mask 
     sam_mask_grayscale, root_hair_mask  = hybrid_main2(image, image_gray)
 
-    # Creat root hair mask
+    # Analyze individual root hairs and filter valid ones
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
     mask_closed_contour, contours = createContoursAndFill(sam_mask_grayscale)
     valid_root_hair_masks, components_masks = makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
 
-
+    # Create final visualization (interactive plotly)
     fig = makeFinalPlotlyVisual(image_gray, valid_root_hair_masks)
     return fig, root_hair_mask, valid_root_hair_masks
 
+
 if __name__ == "__main__":
-    '''To find root_hair masks and final visualizations for images in a folder.'''
+    '''Testing: To find root_hair masks and final visualizations for images in a folder.'''
     # folder_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict'
     # folder = Path(folder_path)
     # store_results = {}
@@ -44,12 +45,12 @@ if __name__ == "__main__":
     #     idx += 1
 
 
-    '''To find root_hair mask of one image with its path.'''
-    image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/144.bmp'
+    '''Testing: To find root_hair mask of one image with its path.'''
+    image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/147.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
     fig, root_hair_mask, valid_root_hair_masks = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
-                  upper=200.0, lower=10.0)
+                  upper=500.0, lower=10.0)
     fig.show(renderer='browser')
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))
