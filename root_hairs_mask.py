@@ -5,47 +5,39 @@ import skimage as sk
 import scipy as scipy
 import os
 
-def createNewRootHairMask(image_grey, main_root):
-    '''This function creates a new mask for root hairs using adaptive thresholding.'''
-
-    better_adapt = cv2.adaptiveThreshold(image_grey, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 8)
-    root_hair_mask = better_adapt.copy()
-    expanded_root_mask = cv2.dilate(main_root, np.ones((7,7), np.uint8), iterations=1)
-    root_hair_mask[expanded_root_mask > 0] = 0
-
-    return root_hair_mask
 
 def skeletonizeRootHairMask(root_hair_mask):
-    'This function skeletonizes the root hair mask.'
+    'This function skeletonizes the individual root hairs found in a mask that contains only root hairs.'
 
-    skeletonized_hairs = sk.morphology.skeletonize(root_hair_mask // 255)
-    skeletonized_hairs = (skeletonized_hairs * 255).astype(np.uint8)
+    skeletonized_hairs = sk.morphology.skeletonize(root_hair_mask // 255) # Turn image binary (0's and 1's)
+    skeletonized_hairs = (skeletonized_hairs * 255).astype(np.uint8) # convert back to 0 and 255
 
     return skeletonized_hairs
 
-def addMainRootToSkeletonizedHairs(skeletonized_hairs, contour):
-    'This function adds the main root boundary countour to skeletonized hairs to make a version with contours.'
-
-    skeletonized_hairs_with_contours = skeletonized_hairs.copy()
-    skeletonized_hairs_with_contours = cv2.drawContours(skeletonized_hairs_with_contours, contour, -1, 255, 1)
-
-    return skeletonized_hairs_with_contours
-
 def findBranchLength(y, x, neighbors, length_per_branch, root_hair_pixel_set, 
                      uniquePixelsTraversed, branchID, current_length): 
-    '''A recursive function used to find the lengths of branches starting from a branchpoint.'''     
+    '''A recursive function used to find the lengths of branches starting from a branchpoint (a pixel with more than 2 neighbors in it's 8-pixel radius).'''     
+    
+    # Add current coordinates to storage so we know that we have already traversed this pixel
     uniquePixelsTraversed.add((y,x))
+    
+    # Find the number of neighbors surrounding a pixel
     num_neighbors = 0
     for dy, dx in neighbors:
         if (y+dy, x+dx) in root_hair_pixel_set:
             num_neighbors += 1
-    if num_neighbors == 1:
+    
+    # If we the pixel only has 1 neighbor, we know we are at the end of a branch
+    if num_neighbors == 1: 
         return current_length
+    
+    # If there are >1 neighbors, we recursively run the function on surrounding pixels 
     for dy, dx in neighbors:
         if (y+dy, x+dx) in root_hair_pixel_set and (y+dy, x+dx) not in uniquePixelsTraversed:
             return findBranchLength(y+dy, x+dx, neighbors, length_per_branch, 
                                     root_hair_pixel_set, uniquePixelsTraversed, branchID, 
                                     current_length+1)
+    # Assuming none of the surrounding pixels meet our criteria, we can end the function 
     return current_length               
 
 def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion_factor, upper, lower):
@@ -230,9 +222,8 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
 
     return valid_root_hair_masks, components_masks
 
-
 def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
-    ' This function creates an overlay of the filtered root hairs on top of the original grayscale image.'
+    '(Used primarily in testing) This function creates an overlay of the filtered root hairs on top of the original grayscale image.'
 
     color_root = cv2.cvtColor(image_grey, cv2.COLOR_GRAY2RGB)
     overlay = color_root.copy()
