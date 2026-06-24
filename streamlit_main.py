@@ -85,7 +85,7 @@ with col1:
     st.text('')
 
     if st.button("Analyze", key='analysis1'):
-        if st.session_state['image_gray1']:
+        if st.session_state['image_gray1'] is not None:
             imageToAnalyze = st.session_state['image_gray1']
             image = st.session_state['image_color1']
             fig1, root_hair_mask, valid_root_hair_masks= main_v2(image,imageToAnalyze, microscope_conversion_factor, upper, lower)
@@ -127,7 +127,7 @@ with col2:
     st.text('')
 
     if st.button("Analyze", key='analysis2'):
-        if st.session_state['image_gray2']:
+        if st.session_state['image_gray2'] is not None:
             imageToAnalyze2 = st.session_state['image_gray2']
             image = st.session_state['image_color2']
             fig2, root_hair_mask, valid_root_hair_masks = main_v2(image, imageToAnalyze2, microscope_conversion_factor, upper, lower)
