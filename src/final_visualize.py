@@ -11,6 +11,9 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
     Returns:
         plotly.graph_objects.Figure: Interactive Plotly figure containing the
         grayscale image and overlays for each valid root hair.
+
+        traces: List of heatmaps, where each heatmap is a valid root hair
+
     '''
     
     fig = px.imshow(image_gray, binary_string=True)
@@ -33,24 +36,17 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
         valid_dict = valid_root_hair_masks[i]
         ind_mask = (valid_dict['thicker mask']).astype(float)
         ind_mask[ind_mask == 0] = np.nan
-        # h, w = ind_mask.shape
-        # rgb_mask = np.zeros((h, w, 3), dtype=np.uint8)
-        # rgb_mask[ind_mask == 1] = [255, 0 ,0]
-        # fig = px.imshow(rgb_mask)
-        # fig.show()
 
         id = valid_dict['id']
         length = valid_dict['length in microns']
 
-        # hover_text = np.full(ind_mask.shape, '', dtype=object)
-        # hover_text[ind_mask == 1] = f"Component {id} <br> Length: {length:.2f}"
-        text = f"Component {id} \n Length: {length:.2f}"
+        # text = f"Component {id} \n Length: {length:.2f}"
         trace = go.Heatmap(
             z = ind_mask,
-            name=f"Component {id}",
+            #name=f"Component {id}",
             showscale = False,
             hoverongaps = False,
-            hovertemplate = f"ID: {id}<br>Length: {length:.2f} µm<extra></extra>"
+            hovertemplate = f"Length: {length:.2f} µm   "
         )
         traces.append(trace)
 
@@ -59,7 +55,7 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False)
     # fig.show()
-    return fig 
+    return fig, traces
 
 def makeVisualOfContours(image_gray, contours):
     blank = np.zeros_like(image_gray)

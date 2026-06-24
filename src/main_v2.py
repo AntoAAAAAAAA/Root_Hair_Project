@@ -43,14 +43,14 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
     # Create final visualization (interactive plotly)
     print('\n')
     print('[5/5] Creating final plotly figure...')
-    fig = makeFinalPlotlyVisual(image_gray, valid_root_hair_masks)
+    fig, hairs = makeFinalPlotlyVisual(image_gray, valid_root_hair_masks)
 
     print('\n')
     print('=' * 50)
     print('ANALYSIS COMPLETE')
     print('=' * 50)
     print('\n')
-    return fig, root_hair_mask, valid_root_hair_masks
+    return fig, hairs
 
 
 if __name__ == "__main__":
