@@ -94,7 +94,7 @@ with col1:
         st.session_state['fig1'] = fig1
 
     if st.session_state['fig1'] is not None:
-        st.plotly_chart(st.session_state['fig1'], use_container_width=True)
+        st.plotly_chart(st.session_state['fig1'], width='stretch')
 
 with col2:
     uploaded_file2 = st.file_uploader(
@@ -133,4 +133,4 @@ with col2:
         st.session_state['fig2'] = fig2
 
     if st.session_state['fig2'] is not None:
-        st.plotly_chart(st.session_state['fig2'], use_container_width=True)
+        st.plotly_chart(st.session_state['fig2'], width='stretch')
