@@ -7,10 +7,10 @@ import plotly as plot
 import plotly.express as px
 from ultralytics import SAM
 
-from main_root_mask import *
-from root_hairs_mask import *
-from final_visualize import *
-from hybrid_ML import *
+from src.main_root_mask import *
+from src.root_hairs_mask import *
+from src.final_visualize import *
+from src.hybrid_ML import *
 
 # Note: Always include image_gray as an input for mains. Streamlit is weird with grayscale conversion, so this is necessary
 def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
@@ -19,8 +19,10 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
         tuple:
             fig (plotly.graph_objects.Figure): Interactive Plotly figure showing
                 the analyzed root hairs overlaid on the grayscale image.
+
             root_hair_mask (np.ndarray): Binary mask containing the candidate root
                 hair regions after subtraction of the main root.
+
             valid_root_hair_masks (list[np.ndarray]): List of binary masks
                 corresponding to root hairs that passed the filtering criteria.
     '''
