@@ -9,12 +9,12 @@ from src.main import *
 
 if 'conversion factor' not in st.session_state:
     st.session_state['conversion factor'] = 0.0
-if 'image1' not in st.session_state:
-    st.session_state['image1'] = None
+if 'image_gray1' not in st.session_state:
+    st.session_state['image_gray1'] = None
 if 'fig1' not in st.session_state:
     st.session_state['fig1'] = None
-if 'image2' not in st.session_state:
-    st.session_state['image2'] = None
+if 'image_gray2' not in st.session_state:
+    st.session_state['image_gray2'] = None
 if 'fig2' not in st.session_state:
     st.session_state['fig2'] = None
 
@@ -65,7 +65,7 @@ with col1:
         # file_bytes2 = np.asarray(bytearray(uploaded_file2.getvalue()), dtype=np.uint8)
         file_bytes1 = np.frombuffer(uploaded_file1.read(), np.uint8)
         image_gray1 = cv2.imdecode(file_bytes1, cv2.IMREAD_GRAYSCALE)
-        st.session_state['image1'] = image_gray1
+        st.session_state['image_gray1'] = image_gray1
 
         st.image(image_gray1, caption="Grayscale image", )
 
@@ -78,7 +78,7 @@ with col1:
     st.text('')
 
     if st.button("Analyze", key='analysis1'):
-        imageToAnalyze = st.session_state['image1']
+        imageToAnalyze = st.session_state['image_gray1']
         fig1 = main(imageToAnalyze, microscope_conversion_factor, upper, lower)
         fig1.update_layout(autosize = False,
                         width = 1000,
@@ -101,7 +101,7 @@ with col2:
         # file_bytes2 = np.asarray(bytearray(uploaded_file2.getvalue()), dtype=np.uint8)
         file_bytes2 = np.frombuffer(uploaded_file2.read(), np.uint8)
         image_gray2 = cv2.imdecode(file_bytes2, cv2.IMREAD_GRAYSCALE)
-        st.session_state['image2'] = image_gray2
+        st.session_state['image_gray2'] = image_gray2
 
         st.image(image_gray2, caption="Grayscale image", )
 
@@ -114,8 +114,8 @@ with col2:
     st.text('')
 
     if st.button("Analyze", key='analysis2'):
-        imageToAnalyz2 = st.session_state['image2']
-        fig2 = main(imageToAnalyz2, microscope_conversion_factor, upper, lower)
+        imageToAnalyze2 = st.session_state['image_gray2']
+        fig2 = main(imageToAnalyze2, microscope_conversion_factor, upper, lower)
         fig2.update_layout(autosize = False,
                         width = 1000,
                         height = 800)
