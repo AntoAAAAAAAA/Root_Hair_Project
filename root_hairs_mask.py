@@ -53,103 +53,83 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
 
     valid_root_hair_masks = []
 
-    filtered = 0 # for testing
+    # filtered = 0 # for testing
 
     for i in range(1, num_objects + 1):
-        one_component_mask = (components_masks == i).astype(np.uint8)
 
-        # # for testing 
-        # if one_component_mask.sum() < 10:  # Filter out small components
-        #     continue
-        # if one_component_mask.sum() > 500:  # Filter out large components
-        #     continue
+        # choose a single
+        root_hair_mask = (components_masks == i).astype(np.uint8)
 
-        if one_component_mask.sum() == 0:
+        # Check that root hair mask has pixels 
+        if root_hair_mask.sum() == 0:
             continue
-        y, x = np.where(one_component_mask > 0)
+
+        # Crop mask to zoom in on the individual pixels that make up the root hair 
+        y, x = np.where(root_hair_mask > 0)
         adjustment = 3
-        h , w = one_component_mask.shape
+        h , w = root_hair_mask.shape
         y_min = max(0, y.min() - adjustment)
         y_max = min(h-1, y.max() + adjustment)
         x_min = max(0, x.min() - adjustment)
         x_max = min(w-1, x.max() + adjustment)
-
-        cropped_component_mask = one_component_mask[y_min:y_max+1, x_min:x_max+1]
-
-        # for testing
-        # filtered += 1
-        # debugFolder = 'debug_images'
-        # os.makedirs(debugFolder, exist_ok= True)
-        # plt.figure(figsize=(5,5))
-        # plt.imshow(cropped_component_mask, cmap='gray')
-        # plt.title(f"Component {i}")
-        # plt.axis('off')
-        # plt.savefig(f'{debugFolder}/component_{i}.png', bbox_inches='tight')
-        # plt.close()
-        # print(f'''Component {i}, length: {length:.2f} pixels, 
-        #        length: {length_in_microns:.2f} microns, 
-        #        endpoints: {endpoints}, 
-        #        branchpoints: {branchpoints},
-        #        degrees: {list_of_degrees},
-        #        ortho neighbors: {num_ortho_neighbors},
-        #        diag neighbors: {num_diag_neighbors}"
-        #     ''')
+        cropped_component_mask = root_hair_mask[y_min:y_max+1, x_min:x_max+1]
         
-        # make a set of all pixels that make up the component (in tuples)
+        # Create a set of every pixel that makes up the root hair 
         coords = np.argwhere(cropped_component_mask > 0)
         root_hair_pixel_set = set(tuple(coordinate) for coordinate in coords)
 
-        # make a kernel that holds the 8 neighbors of a pixel
+        # Make kernels that represent neighboring pixels 
         neighbors = [
             (-1, -1), (-1, 0), (-1, 1),
             (0, -1),           (0, 1),
             (1, -1), (1, 0), (1, 1)
         ]
-        # also make kernels that hold 2 orthogonal neighbors and 2 diagonal neighbors (forward directions only)
         ortho_neighbors = [(0, 1), (1, 0)]
         diag_neighbors = [(1, 1), (1, -1)]
 
+        # --- Identify all neighbors, orthogonal neighbors, and diagonal neighbors -----
         list_of_degrees = []
         num_ortho_neighbors = 0
         num_diag_neighbors = 0
         branch_coords = []
-        # for each pixel in the component:
+
+        # Loop through each pixel in the root hair 
         for y, x in coords:
             num_neighbors = 0
-            # check how many of its neighbors are also in the component by comparing 8-neighbor kernel
+
+            # Check number of neighbors using 8-neighbor kernel
             for dy, dx in neighbors:
                 if (y + dy, x + dx) in root_hair_pixel_set:
                     num_neighbors += 1
             list_of_degrees.append(num_neighbors)
             if num_neighbors >= 3:
                 branch_coords.append((y,x))
-            # check how many orthogonal neighbors are in the component by comparing to ortho kernel
+
+            # Check number of orthogonal neighbors using orthogonal kernel
             for dy, dx in ortho_neighbors:
                 if (y + dy, x + dx) in root_hair_pixel_set:
                     num_ortho_neighbors += 1
-            # check how many diagonal neighbors are in the component by comparing to diag kernel 
+
+            # Check number of diagonal neighbors using diagonal kernel
             for dy, dx in diag_neighbors:
                 if (y + dy, x + dx) in root_hair_pixel_set:
                     num_diag_neighbors += 1
 
-
-            
+        # Find # of endpoints
         endpoints = list_of_degrees.count(1)
-        # branchpoints = sum(1 for x in list_of_degrees if x >= 3)
-        # middle_points = list_of_degrees.count(2)
 
-        # filter root hairs that aren't good for measuring 
+        # Exclude root hairs that only have 1 endpoint  
         if endpoints == 1:
             continue
             
-        # filter root hairs that have significant branching 
+        # Filter root hairs that have branches that are significantly long  
         valid_branches = True
         if endpoints > 2:
-            # if num_neighbors >= 3:
             for y, x in branch_coords:
                 length_per_branch = {}
                 for dy, dx in neighbors: 
                     if (y + dy, x + dx) in root_hair_pixel_set:
+                        # Traverse pixels that make up root hair and recursively find how long the branches are
                         uniquePixelsTraversed = set()
                         uniquePixelsTraversed.add((y,x))
                         branchID = (y+dy, x+dx)
@@ -161,11 +141,14 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
                                                                       uniquePixelsTraversed, 
                                                                       branchID, 
                                                                       current_length = 0)
-                        
+
+                # Find how many short branches there are   
                 short_branches = 0
                 for length in length_per_branch.values():
                     if length < 5:
                         short_branches += 1
+                
+                # Filter out root hairs that have significant branching 
                 if len(length_per_branch.keys()) == 4 and short_branches < 2:
                     valid_branches = False 
                     break
@@ -176,20 +159,17 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
         if not valid_branches:
             continue 
 
-        # calculate the length of the component using ortho and diag neighbors
+        # Calculate the length of the root hair using ortho and diag neighbors
         length = num_ortho_neighbors + (num_diag_neighbors * np.sqrt(2))
         length_in_microns = length * microscope_conversion_factor
 
-        # filter root hairs that are too long/too short  
+        # Exclude root hairs that are too long/too short  
         if length_in_microns > upper or length_in_microns < lower: 
             continue
 
-        # need to compare one_component_mask to contour
+        # Check if root hair is within a reasonable distance to the main root 
         coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
         coords_of_endpoints = [(y + y_min, x + x_min) for y,x in coords_of_endpoints]
-                
-        # coords_of_contour = np.squeeze(contour[0])
-        # coords_of_contour = set(map(tuple, coords_of_contour))
         coords_of_contour = contour[0].reshape(-1, 2)
         coords_of_contour = set(map(tuple, coords_of_contour.tolist()))
 
@@ -204,27 +184,26 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
         
         if not endpoint_near_root:
             continue 
-
+        
+        # Create a dilated/thicker mask of the root hair (for visualization purposes)
         kernel = np.ones((4,4), np.uint8)
-        thicker_mask = cv2.dilate(one_component_mask, kernel, iterations=1)
+        thicker_mask = cv2.dilate(root_hair_mask, kernel, iterations=1)
 
 
         valid_root_hair_masks.append({
             'id': i,
-            'mask': one_component_mask,
+            'mask': root_hair_mask,
             'thicker mask': thicker_mask,
             'length': length,
             'length in microns': length_in_microns,
         })
-
-    # # testing
-    # print(f"Number of filtered components: {filtered}")
 
     return valid_root_hair_masks, components_masks
 
 def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
     '(Used primarily in testing) This function creates an overlay of the filtered root hairs on top of the original grayscale image.'
 
+    
     color_root = cv2.cvtColor(image_grey, cv2.COLOR_GRAY2RGB)
     overlay = color_root.copy()
     for i in range(0, len(valid_root_hair_masks)):
