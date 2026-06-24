@@ -87,7 +87,6 @@ with col1:
     image_gray1 = None
     if uploaded_file1 is not None:
         uploaded_file1.seek(0) # reset file pointer to the beginning  
-        # file_bytes2 = np.asarray(bytearray(uploaded_file2.getvalue()), dtype=np.uint8)
         file_bytes1 = np.frombuffer(uploaded_file1.read(), np.uint8)
         image_gray1 = cv2.imdecode(file_bytes1, cv2.IMREAD_GRAYSCALE)
         st.session_state['image_gray1'] = image_gray1
@@ -100,13 +99,16 @@ with col1:
         if st.button("Analyze", key='analysis1'):
             if st.session_state['image_gray1'] is not None:
                 image_gray1 = st.session_state['image_gray1']
-                image = st.session_state['image_color1']
-                fig1, traces1 = main_v2(image,image_gray1, microscope_conversion_factor, upper, lower)
+                image_color1 = st.session_state['image_color1']
+
+                fig1, traces1 = main_v2(image_color1,image_gray1, microscope_conversion_factor, upper, lower)
                 st.session_state['traces1'] = traces1
+                st.session_state['fig1'] = fig1
+
                 image_list1 = []
                 image_list1.insert(0, fig1)
-                for trace in traces1:
 
+                for trace in traces1:
                     base_image = px.imshow(image_gray1, binary_string=True)
                     
                     base_image.data[0].hovertemplate = None
@@ -118,9 +120,6 @@ with col1:
 
                     image_list1.append(base_image)
 
-                # fig1.update_layout(autosize = False,
-                #                 width = 1000,
-                #                 height = 800)
                 st.session_state["image_list1"] = image_list1
                 st.session_state["hair_index1"] = 0
                 st.session_state['selected_image1'] = image_list1[0]
@@ -139,7 +138,7 @@ with col1:
                     st.session_state['hair_index1'] -= 1
 
                     if st.session_state["hair_index1"] < 0:
-                        st.session_state["hair_index1"] = len(st.session_state["image_list1"])
+                        st.session_state["hair_index1"] = len(st.session_state["image_list1"]) - 1
 
                     st.session_state['selected_image1'] = st.session_state.image_list1[st.session_state['hair_index1']]
             
@@ -164,41 +163,79 @@ with col2:
         type=["bmp", "png", "jpg", "jpeg", "tif", "tiff"],
         key='2'
     )
-          
+
     image_gray2 = None
     if uploaded_file2 is not None:
-        uploaded_file2.seek(0) # reset file pointer to the beginning
-        # file_bytes2 = np.asarray(bytearray(uploaded_file2.getvalue()), dtype=np.uint8)
+        uploaded_file2.seek(0)
         file_bytes2 = np.frombuffer(uploaded_file2.read(), np.uint8)
         image_gray2 = cv2.imdecode(file_bytes2, cv2.IMREAD_GRAYSCALE)
         st.session_state['image_gray2'] = image_gray2
         image_color2 = cv2.imdecode(file_bytes2, cv2.IMREAD_COLOR)
         st.session_state['image_color2'] = image_color2
+        st.image(image_gray2, caption="T1 Grayscale image")
 
-        st.image(image_gray2, caption="Grayscale image", )
+    co1, co2, co3 = st.columns(3)
 
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
+    with co2:
+        if st.button("Analyze", key='analysis2'):
+            if st.session_state['image_gray2'] is not None:
+                image_gray2 = st.session_state['image_gray2']
+                image_color2 = st.session_state['image_color2']
 
-    if st.button("Analyze", key='analysis2'):
-        if st.session_state['image_gray2'] is not None:
-            imageToAnalyze2 = st.session_state['image_gray2']
-            image = st.session_state['image_color2']
-            fig2, traces2 = main_v2(image, imageToAnalyze2, microscope_conversion_factor, upper, lower)
-            fig2.update_layout(autosize = False,
-                            width = 1000,
-                            height = 800)
-            st.session_state['fig2'] = fig2
-            st.session_state['traces2'] = traces2
-        else:
-            st.error("No image for analysis provided or in memory")
+                fig2, traces2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper,lower )
+                st.session_state['traces2'] = traces2
+                st.session_state['fig2'] = fig2
 
-    if st.session_state['fig2'] is not None:
-        st.plotly_chart(st.session_state['fig2'], width='stretch')
+                image_list2 = []
+                image_list2.insert(0, fig2)
 
+                for trace in traces2:
+                    base_image = px.imshow(image_gray2, binary_string=True)
+
+                    base_image.data[0].hovertemplate = None
+                    base_image.data[0].hoverinfo = "skip"
+
+                    base_image.add_trace(trace)
+                    base_image.update_yaxes(visible=False)
+                    base_image.update_xaxes(visible=False)
+
+                    image_list2.append(base_image)
+
+                st.session_state["image_list2"] = image_list2
+                st.session_state["hair_index2"] = 0
+                st.session_state['selected_image2'] = image_list2[0]
+
+            else:
+                st.error("No image for analysis provided or in memory.")
+
+    if st.session_state['image_list2'] is not None:
+        colu1, colu2, colu3 = st.columns(3)
+
+        with colu1:
+            st.text('')
+            st.text('')
+            st.text('')
+
+            if st.button('Previous', key='previous_hair2'):
+                st.session_state['hair_index2'] -= 1
+
+                if st.session_state["hair_index2"] < 0:
+                    st.session_state["hair_index2"] = len(st.session_state["image_list2"]) - 1
+
+                st.session_state['selected_image2'] = st.session_state['image_list2'][st.session_state['hair_index2']]
+
+        with colu3:
+            st.text('')
+            st.text('')
+            st.text('')
+            if st.button('Next', key='next_hair2'):
+                st.session_state['hair_index2'] += 1
+
+                if st.session_state["hair_index2"] >= len(st.session_state["image_list2"]):
+                    st.session_state["hair_index2"] = 0
+
+                st.session_state['selected_image2'] = st.session_state['image_list2'][st.session_state['hair_index2']]
+
+        if st.session_state['selected_image2'] is not None:
+            st.plotly_chart(st.session_state['selected_image2'], width='stretch')
 
