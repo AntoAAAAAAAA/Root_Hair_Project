@@ -35,6 +35,13 @@ if 'fig2' not in st.session_state:
     st.session_state['fig2'] = None
 if 'traces2' not in st.session_state:
     st.session_state['traces2'] = None
+if 'hair_index2' not in st.session_state:
+    st.session_state['hair_index2'] = 0
+if 'image_list2' not in st.session_state:
+    st.session_state['image_list2'] = None
+if 'selected_image2' not in st.session_state:
+    st.session_state['selected_image2'] = None
+
 
 st.title('Root Hair Analyzer')
 
