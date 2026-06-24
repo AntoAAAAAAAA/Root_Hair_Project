@@ -5,7 +5,7 @@ import skimage as sk
 import scipy as scipy
 import plotly as plot
 import streamlit as st
-from main import *
+from src.main import *
 
 if 'conversion factor' not in st.session_state:
     st.session_state['conversion factor'] = 0.0000000000

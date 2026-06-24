@@ -6,9 +6,10 @@ import scipy as scipy
 import plotly as plot
 from ultralytics import SAM
 
-from main_root_mask import *
-from root_hairs_mask import *
-from final_visualize import *
+from src.main_root_mask import *
+from src.root_hairs_mask import *
+from src.final_visualize import *
+from archive.archived import *
 
 def main(image_gray, microscope_conversion_factor, upper, lower):
 
