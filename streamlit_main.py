@@ -92,7 +92,7 @@ with col1:
         st.session_state['image_gray1'] = image_gray1
         image_color1 = cv2.imdecode(file_bytes1, cv2.IMREAD_COLOR)
         st.session_state['image_color1'] = image_color1
-        st.image(image_gray1, caption="Grayscale image", )
+        st.image(image_gray1, caption="T0 Grayscale image", )
 
     co1, co2, co3 = st.columns(3)
     with co2: 
