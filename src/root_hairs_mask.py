@@ -49,7 +49,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
     skeletonized_hairs_binary = (skeletonized_hairs > 0).astype(np.uint8)
     components_masks = sk.measure.label(skeletonized_hairs_binary, connectivity=2)
     num_objects = components_masks.max()
-    print(f"Number of connected components: {num_objects}")
+    print(f"     Number of components found: {num_objects}")
 
     valid_root_hair_masks = []
 
@@ -198,6 +198,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
             'length in microns': length_in_microns,
         })
 
+    print("     Root hair analysis complete")
     return valid_root_hair_masks, components_masks
 
 def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
