@@ -65,6 +65,14 @@ def hybrid_main2(image, image_gray):
     to find the main root with optimal accuracy. The resulting core main root is then 
     subtracted from the whole root threshold mask, leaving behind a mask that contains 
     only the root hairs.  
+
+    Returns:
+        tuple:
+            sam_mask_grayscale (np.ndarray): Binary mask of the detected main root
+                after SAM-assisted segmentation and grayscale processing.
+            
+            root_hair_mask (np.ndarray): Binary mask containing candidate root hair
+                regions after subtraction of the main root.
     '''
 
     # Uses SAM-2, large model
