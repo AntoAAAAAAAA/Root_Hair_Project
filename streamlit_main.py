@@ -5,6 +5,7 @@ import skimage as sk
 import scipy as scipy
 import plotly as plot
 import streamlit as st
+import plotly.express as px
 from src.main_v2 import *
 
 if 'conversion factor' not in st.session_state:
@@ -16,6 +17,15 @@ if 'image_color1' not in st.session_state:
     st.session_state['image_color1'] = None
 if 'fig1' not in st.session_state:
     st.session_state['fig1'] = None
+if 'traces1' not in st.session_state:
+    st.session_state['traces1'] = None
+if 'hair_index1' not in st.session_state:
+    st.session_state['hair_index1'] = 0
+if 'image_list1' not in st.session_state:
+    st.session_state['image_list1'] = None
+if 'selected_image1' not in st.session_state:
+    st.session_state['selected_image1'] = None
+
 
 if 'image_gray2' not in st.session_state:
     st.session_state['image_gray2'] = None
@@ -23,6 +33,8 @@ if 'image_color2' not in st.session_state:
     st.session_state['image_color2'] = None
 if 'fig2' not in st.session_state:
     st.session_state['fig2'] = None
+if 'traces2' not in st.session_state:
+    st.session_state['traces2'] = None
 
 st.title('Root Hair Analyzer')
 
@@ -76,28 +88,68 @@ with col1:
         st.session_state['image_color1'] = image_color1
         st.image(image_gray1, caption="Grayscale image", )
 
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
-    st.text('')
+    co1, co2, co3 = st.columns(3)
+    with co2: 
+        if st.button("Analyze", key='analysis1'):
+            if st.session_state['image_gray1'] is not None:
+                image_gray1 = st.session_state['image_gray1']
+                image = st.session_state['image_color1']
+                fig1, traces1 = main_v2(image,image_gray1, microscope_conversion_factor, upper, lower)
+                st.session_state['traces1'] = traces1
+                image_list1 = []
+                image_list1.insert(0, fig1)
+                for trace in traces1:
 
-    if st.button("Analyze", key='analysis1'):
-        if st.session_state['image_gray1'] is not None:
-            imageToAnalyze = st.session_state['image_gray1']
-            image = st.session_state['image_color1']
-            fig1, root_hair_mask, valid_root_hair_masks= main_v2(image,imageToAnalyze, microscope_conversion_factor, upper, lower)
-            fig1.update_layout(autosize = False,
-                            width = 1000,
-                            height = 800)
-            st.session_state['fig1'] = fig1
-        else:
-            st.error("No image for analysis provided or in memory")
+                    base_image = px.imshow(image_gray1, binary_string=True)
+                    
+                    base_image.data[0].hovertemplate = None
+                    base_image.data[0].hoverinfo = "skip"
 
-    if st.session_state['fig1'] is not None:
-        st.plotly_chart(st.session_state['fig1'], width='stretch')
+                    base_image.add_trace(trace)
+                    base_image.update_yaxes(visible=False)
+                    base_image.update_xaxes(visible=False)
+
+                    image_list1.append(base_image)
+
+                # fig1.update_layout(autosize = False,
+                #                 width = 1000,
+                #                 height = 800)
+                st.session_state["image_list1"] = image_list1
+                st.session_state["hair_index1"] = 0
+                st.session_state['selected_image1'] = image_list1[0]
+
+            else:
+                st.error("No image for analysis provided or in memory")
+
+    if st.session_state['image_list1'] is not None:
+        colu1, colu2, colu3 = st.columns(3)
+        
+        with colu1:
+            st.text('')
+            st.text('')
+            st.text('')
+            if st.button('Previous', key='previous_hair1'):
+                    st.session_state['hair_index1'] -= 1
+
+                    if st.session_state["hair_index1"] < 0:
+                        st.session_state["hair_index1"] = len(st.session_state["image_list1"])
+
+                    st.session_state['selected_image1'] = st.session_state.image_list1[st.session_state['hair_index1']]
+            
+        with colu3:
+            st.text('')
+            st.text('')
+            st.text('')
+            if st.button('Next', key='next_hair1'):
+                    st.session_state['hair_index1'] += 1
+
+                    if st.session_state["hair_index1"] >= len(st.session_state["image_list1"]):
+                        st.session_state["hair_index1"] = 0
+
+                    st.session_state['selected_image1'] = st.session_state.image_list1[st.session_state['hair_index1']]
+
+        if st.session_state['selected_image1'] is not None:
+            st.plotly_chart(st.session_state['selected_image1'], width='stretch')
 
 with col2:
     uploaded_file2 = st.file_uploader(
@@ -130,13 +182,16 @@ with col2:
         if st.session_state['image_gray2'] is not None:
             imageToAnalyze2 = st.session_state['image_gray2']
             image = st.session_state['image_color2']
-            fig2, root_hair_mask, valid_root_hair_masks = main_v2(image, imageToAnalyze2, microscope_conversion_factor, upper, lower)
+            fig2, traces2 = main_v2(image, imageToAnalyze2, microscope_conversion_factor, upper, lower)
             fig2.update_layout(autosize = False,
                             width = 1000,
                             height = 800)
             st.session_state['fig2'] = fig2
+            st.session_state['traces2'] = traces2
         else:
             st.error("No image for analysis provided or in memory")
 
     if st.session_state['fig2'] is not None:
         st.plotly_chart(st.session_state['fig2'], width='stretch')
+
+
