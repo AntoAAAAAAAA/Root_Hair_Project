@@ -66,14 +66,15 @@ def hybrid_main2(image, image_gray):
     subtracted from the whole root threshold mask, leaving behind a mask that contains 
     only the root hairs.  
     '''
-    
+
     # Uses SAM-2, large model
     model = SAM('sam2_l.pt')
-
+    print('\n')
+    print('[1/5] Running SAM full-image segmentation...')
     # Run model using bounding box that has 4 points of the image
     H, W = image.shape[:2]
-    results = model.predict(image, bboxes = [[0, 0 , W, H]])
-
+    results = model.predict(image, bboxes = [[0, 0 , W, H]], verbose = False)
+    print('     Segmentation complete')
     # Find the largest mask --> background 
     annotated = results[0].masks.data.cpu().numpy()
     areas = [mask.sum() for mask in annotated]
@@ -84,38 +85,40 @@ def hybrid_main2(image, image_gray):
     # Turn the SAM background black, and keep the grayscale image of the root with its hairs 
     overlay = image_gray.copy()
     overlay[largest_mask > 0] = 255
-
+    print('\n')
+    print("[2/5] Thresholding Image...")
     # Thresholding of the overlay image and the grayscale image 
     _, main_thresh = cv2.threshold(overlay, 180, 255, cv2.THRESH_BINARY_INV)
     _, core_thresh = cv2.threshold(image_gray, 130, 255, cv2.THRESH_BINARY_INV)
-    print("Thresholding complete")
-
+    print("     Thresholding complete")
 
 
     # --- Main root logic done on core_thresh to extract the main root ----
-
+    print('\n')
+    print("[3/5] Begin finding main root...")
     # Find connected components from core 
     num_labels, labels, stats, centroids =cv2.connectedComponentsWithStats(core_thresh)
     largest_label = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])
     binary_mask = (labels == largest_label).astype(np.uint8) * 255
     
+    
     # Distance transform
     dist_map = cv2.distanceTransform(binary_mask, cv2.DIST_L2, 5)
-    core = (dist_map >= 5).astype(np.uint8) * 255
-    print("Distance transform complete")
+    core = (dist_map >= 5).astype(np.uint8) * 255   
+    print("     Distance transform complete")
     
     # Create a bounding rectangle using the resulting core
     pts = cv2.findNonZero(core)
     x, y, w, h = cv2.boundingRect(pts) 
     # (x,y) is top left. +x is going right, +y is going down
     # coordinates are (x,y), (x+h,y), (x,y+w), (x+w,y+h)
-    print("Bounding rectangle complete")
+    print("     Bounding rectangle complete")
     
     # Plug bounding rectangle into SAM and let it extract the main root with optimal accuracy
-    print("SAM prediction initialized...")
-    results = model.predict(image, bboxes = [[x, y, x+w, y+h]])
-    print("SAM prediction complete")
-
+    print("     SAM prediction begin for main root...")
+    results = model.predict(image, bboxes = [[x, y, x+w, y+h]], verbose = False)
+    print("     SAM main root found!")
+    
     # Take SAM mask results and extract the main root (largest one)
     all_masks = results[0].masks.data.cpu().numpy()
     areas = [mask.sum() for mask in all_masks]
