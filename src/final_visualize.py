@@ -6,6 +6,13 @@ import matplotlib.pyplot as plt
 
 
 def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
+    '''This function creates a final plotly interactive figure for presentation.
+    
+    Returns:
+        plotly.graph_objects.Figure: Interactive Plotly figure containing the
+        grayscale image and overlays for each valid root hair.
+    '''
+    
     fig = px.imshow(image_gray, binary_string=True)
     # Disable hover on the background trace
     fig.data[0].hovertemplate = None
