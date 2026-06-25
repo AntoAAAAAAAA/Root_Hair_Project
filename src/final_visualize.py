@@ -52,7 +52,7 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
 
     list_traces = [trace for trace, length in traces]
     fig.add_traces(list_traces)
-    fig.update_layout(height=500, margin=dict(l=0, r=0, t=0, b=0),)
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0),)
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False)
     # fig.show()
