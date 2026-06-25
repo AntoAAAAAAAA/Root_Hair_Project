@@ -125,7 +125,7 @@ with col1:
 
                 for trace, length in traces1:
                     base_image = px.imshow(image_gray1, binary_string=True)
-                    base_image.update_layout(height=800)
+                    base_image.update_layout(height=500)
                     
                     base_image.data[0].hovertemplate = None
                     base_image.data[0].hoverinfo = "skip"
@@ -213,7 +213,8 @@ with col2:
 
                 for trace, length in traces2:
                     base_image = px.imshow(image_gray2, binary_string=True)
-                    
+                    base_image.update_layout(500)
+
                     base_image.data[0].hovertemplate = None
                     base_image.data[0].hoverinfo = "skip"
 
@@ -231,6 +232,7 @@ with col2:
                 st.error("No image for analysis provided or in memory")
 
     if st.session_state['image_list2'] is not None:
+        st.divider()
         colu1, colu2, colu3 = st.columns(3)
         
         with colu1:
@@ -261,11 +263,10 @@ with col2:
             else:
                 length2 = st.session_state.traces2[indx-1][1]
                 c1, c2, c3 = st.columns(3)
-                c2.text(f'Length: {length2:.2f} µm')
-                
-                if c2.button("Add to table", key="add_to_table2"):
+                colu2.text(f'Length: {length2:.2f} µm')
+                if colu2.button("Add to table", key="add_to_table2"):
                     st.session_state['col2_list'].append(length2)
-                    c2.success('Value added')
+                    st.toast('Value added')
 
 
 st.divider()
