@@ -12,10 +12,9 @@ st.write(
 
 
 st.info(
-    """
-**Important:** This program is best used on relatively clean root images with clearly visible individual root hairs.  
-Messy or overlapping hairs may produce inaccurate detections, so manual verification is strongly recommended.
-"""
+    "**Important:** This program is best used on relatively clean root images with clearly visible individual root hairs. " \
+    "Messy or overlapping hairs may produce inaccurate detections, " \
+    "so manual verification is strongly recommended."
 )
 
 st.write(
