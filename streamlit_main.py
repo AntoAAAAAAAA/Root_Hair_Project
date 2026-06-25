@@ -178,7 +178,7 @@ with col1:
                 
                 if c2.button("Add to table"):
                     st.session_state['col1_list'].append(length1)
-                    c2.success('Value added')
+                    c2.toast('Value added')
 
 with col2:
     uploaded_file2 = st.file_uploader(
