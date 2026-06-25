@@ -10,7 +10,7 @@ import streamlit as st
 import plotly.express as px
 from src.main_v2 import *
 
-### -----Session State Initiations --------
+### -----Session State Initiations--------
 
 if 'conversion factor' not in st.session_state:
     st.session_state['conversion factor'] = 0.0
@@ -119,7 +119,7 @@ with col1:
         st.session_state['image_gray1'] = image_gray1
         image_color1 = cv2.imdecode(file_bytes1, cv2.IMREAD_COLOR)
         st.session_state['image_color1'] = image_color1
-        st.image(image_gray1, caption="T0 Grayscale image", )
+        st.image(uploaded_file1, caption="T0 Grayscale image", )
 
     co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
     with co4: 
@@ -213,7 +213,7 @@ with col2:
         st.session_state['image_gray2'] = image_gray2
         image_color2 = cv2.imdecode(file_bytes2, cv2.IMREAD_COLOR)
         st.session_state['image_color2'] = image_color2
-        st.image(image_gray2, caption="T1 Grayscale image", )
+        st.image(uploaded_file2, caption="T1 Grayscale image", )
 
     co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
     with co4:  
