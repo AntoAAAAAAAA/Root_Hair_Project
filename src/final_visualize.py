@@ -48,10 +48,10 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
             hoverongaps = False,
             hovertemplate = f"Length: {length:.2f} µm   "
         )
-        traces.append(trace)
+        traces.append((trace, length))
 
-
-    fig.add_traces(traces)
+    list_traces = [trace for trace, length in traces]
+    fig.add_traces(list_traces)
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False)
     # fig.show()
