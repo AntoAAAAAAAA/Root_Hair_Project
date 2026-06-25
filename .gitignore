@@ -3,3 +3,6 @@ __pycache__/
 .vscode/
 .DS_Store
 .ipynb_checkpoints/
+archive/
+BE-IN-TESTING-BRANCH-FOR-TESTS.py
+testing.ipynb
