@@ -1,3 +1,4 @@
+### -----Imports--------
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,9 +10,10 @@ import streamlit as st
 import plotly.express as px
 from src.main_v2 import *
 
+### -----Session State Initiations --------
+
 if 'conversion factor' not in st.session_state:
     st.session_state['conversion factor'] = 0.0
-
 
 if 'image_gray1' not in st.session_state:
     st.session_state['image_gray1'] = None
@@ -57,6 +59,7 @@ if 'final_table' not in st.session_state:
     st.session_state['final_table'] = pd.DataFrame(columns=['T0', 'T1'])
 
 
+### -----Title--------
 
 st.title('Root Hair Analyzer')
 st.divider()
@@ -121,32 +124,33 @@ with col1:
                 st.error("No image for analysis provided or in memory")
             
             else:
-                image_gray1 = st.session_state['image_gray1']
-                image_color1 = st.session_state['image_color1']
+                with st.spinner('', show_time=True):
+                    image_gray1 = st.session_state['image_gray1']
+                    image_color1 = st.session_state['image_color1']
 
-                fig1, traces1 = main_v2(image_color1, image_gray1, microscope_conversion_factor, upper, lower)
-                st.session_state['traces1'] = traces1
-                st.session_state['fig1'] = fig1
+                    fig1, traces1 = main_v2(image_color1, image_gray1, microscope_conversion_factor, upper, lower)
+                    st.session_state['traces1'] = traces1
+                    st.session_state['fig1'] = fig1
 
-                image_list1 = []
-                image_list1.insert(0, fig1)
+                    image_list1 = []
+                    image_list1.insert(0, fig1)
 
-                for trace, length in traces1:
-                    base_image = px.imshow(image_gray1, binary_string=True)
-                    base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-                    
-                    base_image.data[0].hovertemplate = None
-                    base_image.data[0].hoverinfo = "skip"
+                    for trace, length in traces1:
+                        base_image = px.imshow(image_gray1, binary_string=True)
+                        base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+                        
+                        base_image.data[0].hovertemplate = None
+                        base_image.data[0].hoverinfo = "skip"
 
-                    base_image.add_trace(trace)
-                    base_image.update_yaxes(visible=False)
-                    base_image.update_xaxes(visible=False)
+                        base_image.add_trace(trace)
+                        base_image.update_yaxes(visible=False)
+                        base_image.update_xaxes(visible=False)
 
-                    image_list1.append(base_image)
+                        image_list1.append(base_image)
 
-                st.session_state["image_list1"] = image_list1
-                st.session_state["hair_index1"] = 0
-                st.session_state['selected_image1'] = image_list1[0]
+                    st.session_state["image_list1"] = image_list1
+                    st.session_state["hair_index1"] = 0
+                    st.session_state['selected_image1'] = image_list1[0]
 
             
 
@@ -214,32 +218,33 @@ with col2:
                 st.error("No image for analysis provided or in memory")
 
             else:
-                image_gray2 = st.session_state['image_gray2']
-                image_color2 = st.session_state['image_color2']
+                with st.spinner('', show_time=True):
+                    image_gray2 = st.session_state['image_gray2']
+                    image_color2 = st.session_state['image_color2']
 
-                fig2, traces2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower)
-                st.session_state['traces2'] = traces2
-                st.session_state['fig2'] = fig2
+                    fig2, traces2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower)
+                    st.session_state['traces2'] = traces2
+                    st.session_state['fig2'] = fig2
 
-                image_list2 = []
-                image_list2.insert(0, fig2)
+                    image_list2 = []
+                    image_list2.insert(0, fig2)
 
-                for trace, length in traces2:
-                    base_image = px.imshow(image_gray2, binary_string=True)
-                    base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0)    )
+                    for trace, length in traces2:
+                        base_image = px.imshow(image_gray2, binary_string=True)
+                        base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0)    )
 
-                    base_image.data[0].hovertemplate = None
-                    base_image.data[0].hoverinfo = "skip"
+                        base_image.data[0].hovertemplate = None
+                        base_image.data[0].hoverinfo = "skip"
 
-                    base_image.add_trace(trace)
-                    base_image.update_yaxes(visible=False)
-                    base_image.update_xaxes(visible=False)
+                        base_image.add_trace(trace)
+                        base_image.update_yaxes(visible=False)
+                        base_image.update_xaxes(visible=False)
 
-                    image_list2.append(base_image)
+                        image_list2.append(base_image)
 
-                st.session_state["image_list2"] = image_list2
-                st.session_state["hair_index2"] = 0
-                st.session_state['selected_image2'] = image_list2[0]
+                    st.session_state["image_list2"] = image_list2
+                    st.session_state["hair_index2"] = 0
+                    st.session_state['selected_image2'] = image_list2[0]
 
            
 
@@ -278,10 +283,9 @@ with col2:
                 if colu3.button("Add to Table", key="add_to_table2"):
                     st.session_state['col2_list'].append(length2)
                     st.toast(f'{length2:.2f} added to T1', icon='➕')
-
-
 st.divider()
 
+### -----Measurements Table--------
 
 t0 = st.session_state['col1_list']
 t1 = st.session_state['col2_list']
@@ -300,6 +304,8 @@ edited_table = st.data_editor(table_df, height=250, hide_index=True, num_rows='d
 
 st.session_state['col1_list'] = (pd.to_numeric(edited_table["T0"], errors="coerce").dropna().tolist())
 st.session_state['col2_list'] = (pd.to_numeric(edited_table["T1"], errors="coerce").dropna().tolist())
+
+### -----Remove Entries from Table--------
 
 remove_col1, remove_col2 = st.columns(2)
 
