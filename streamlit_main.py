@@ -144,6 +144,7 @@ with col1:
                 st.error("No image for analysis provided or in memory")
 
     if st.session_state['image_list1'] is not None:
+        st.divider()
         colu1, colu2, colu3 = st.columns(3)
         
         with colu1:
