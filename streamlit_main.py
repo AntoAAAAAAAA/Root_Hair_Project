@@ -110,12 +110,12 @@ with col1:
         st.session_state['image_color1'] = image_color1
         st.image(image_gray1, caption="T0 Grayscale image", )
 
-    co1, co2, co3 = st.columns(3)
-    with co2: 
+    co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
+    with co4: 
         if st.button("Analyze", key='analysis1', type='primary'):
            
             if st.session_state['conversion factor'] == 0.0:
-                st.error("Microscope conversion factor is missing")
+                col1.error("Microscope conversion factor is missing")
 
             elif st.session_state['image_gray1'] is None:
                 st.error("No image for analysis provided or in memory")
@@ -152,7 +152,7 @@ with col1:
 
     if st.session_state['image_list1'] is not None:
         st.divider()
-        colu1, colu2, colu3 = st.columns(3)
+        colu1, colu2, colu3, colu4, colu5 = st.columns(5)
         
         with colu1:
             if st.button('Previous', key='previous_hair1'):
@@ -163,7 +163,7 @@ with col1:
 
                 st.session_state['selected_image1'] = st.session_state.image_list1[st.session_state['hair_index1']]
             
-        with colu3:
+        with colu5:
             if st.button('Next', key='next_hair1'):
                 st.session_state['hair_index1'] += 1
 
@@ -181,9 +181,8 @@ with col1:
                 st.text("Displaying all valid root hairs found")
             else:
                 length1 = st.session_state.traces1[indx-1][1]
-                c1, c2, c3 = st.columns(3)
-                colu2.text(f'Length: {length1:.2f} µm')
-                if colu2.button("Add to Table"):
+                colu3.text(f'Length: {length1:.2f} µm')
+                if colu3.button("Add to Table"):
                     st.session_state['col1_list'].append(length1)
                     st.toast(f'{length1:.2f} added to T0', icon='➕')
 
@@ -204,11 +203,12 @@ with col2:
         st.session_state['image_color2'] = image_color2
         st.image(image_gray2, caption="T1 Grayscale image", )
 
-    co1, co2, co3 = st.columns(3)
-    with co2: 
+    co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
+    with co4:  
         if st.button("Analyze", key='analysis2', type='primary'):
+            
             if st.session_state['conversion factor'] == 0.0:
-                st.error("Microscope conversion factor is missing")
+                col2.error("Microscope conversion factor is missing")
             
             elif st.session_state['image_gray2'] is None:
                 st.error("No image for analysis provided or in memory")
@@ -226,7 +226,7 @@ with col2:
 
                 for trace, length in traces2:
                     base_image = px.imshow(image_gray2, binary_string=True)
-                    base_image.update_layout(height=500)
+                    base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0)    )
 
                     base_image.data[0].hovertemplate = None
                     base_image.data[0].hoverinfo = "skip"
@@ -245,7 +245,7 @@ with col2:
 
     if st.session_state['image_list2'] is not None:
         st.divider()
-        colu1, colu2, colu3 = st.columns(3)
+        colu1, colu2, colu3, colu4, colu5 = st.columns(5)
         
         with colu1:
             if st.button('Previous', key='previous_hair2'):
@@ -256,7 +256,7 @@ with col2:
 
                 st.session_state['selected_image2'] = st.session_state.image_list2[st.session_state['hair_index2']]
             
-        with colu3:
+        with colu5:
             if st.button('Next', key='next_hair2'):
                 st.session_state['hair_index2'] += 1
 
@@ -274,9 +274,8 @@ with col2:
                 st.text("Displaying all valid root hairs found")
             else:
                 length2 = st.session_state.traces2[indx-1][1]
-                c1, c2, c3 = st.columns(3)
-                colu2.text(f'Length: {length2:.2f} µm')
-                if colu2.button("Add to Table", key="add_to_table2"):
+                colu3.text(f'Length: {length2:.2f} µm')
+                if colu3.button("Add to Table", key="add_to_table2"):
                     st.session_state['col2_list'].append(length2)
                     st.toast(f'{length2:.2f} added to T1', icon='➕')
 
