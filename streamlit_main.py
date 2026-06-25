@@ -147,9 +147,6 @@ with col1:
         colu1, colu2, colu3 = st.columns(3)
         
         with colu1:
-            st.text('')
-            st.text('')
-            st.text('')
             if st.button('Previous', key='previous_hair1'):
                 st.session_state['hair_index1'] -= 1
 
@@ -159,9 +156,6 @@ with col1:
                 st.session_state['selected_image1'] = st.session_state.image_list1[st.session_state['hair_index1']]
             
         with colu3:
-            st.text('')
-            st.text('')
-            st.text('')
             if st.button('Next', key='next_hair1'):
                 st.session_state['hair_index1'] += 1
 
@@ -240,9 +234,6 @@ with col2:
         colu1, colu2, colu3 = st.columns(3)
         
         with colu1:
-            st.text('')
-            st.text('')
-            st.text('')
             if st.button('Previous', key='previous_hair2'):
                 st.session_state['hair_index2'] -= 1
 
@@ -252,9 +243,6 @@ with col2:
                 st.session_state['selected_image2'] = st.session_state.image_list2[st.session_state['hair_index2']]
             
         with colu3:
-            st.text('')
-            st.text('')
-            st.text('')
             if st.button('Next', key='next_hair2'):
                 st.session_state['hair_index2'] += 1
 
