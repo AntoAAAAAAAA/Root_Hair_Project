@@ -112,6 +112,12 @@ with col1:
     co1, co2, co3 = st.columns(3)
     with co2: 
         if st.button("Analyze", key='analysis1'):
+            st.text('')
+            st.text('')
+            st.text('')
+            st.text('')
+            st.text('')
+            st.text('')
             if st.session_state['image_gray1'] is not None:
                 image_gray1 = st.session_state['image_gray1']
                 image_color1 = st.session_state['image_color1']
