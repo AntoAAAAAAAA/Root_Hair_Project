@@ -1,26 +1,79 @@
 import streamlit as st
 
-st.header("A Quick Intro:", divider='rainbow')
+st.header("Root Hair Analyzer", divider="rainbow")
+
 st.write(
-    "This program is intended for use in Dr. Clark's Freshman Research Initiative lab. " \
-    "It is intended to be used by student's to measure root hairs from root images. " \
-    "This project was created by an undergraduate mentor in Dr. Clark's lab and is " \
-    "not a professional tool intended for precision accuracy. It is a **supplemental tool** that is meant " \
-    "to be used alongside student's current methods of measuring root hairs (ImageJ analysis). For any " \
-    "question or concerns, please feel free to contact this email: anto2005antony@gmail.com")
+    "This tool was developed for use in **Dr. Clark’s Freshman Research Initiative lab** "
+    "to help students measure root hairs from microscopy images. It was created by an "
+    "undergraduate mentor as a **supplementary analysis tool** and is intended to support "
+    "existing measurement workflows (ex. ImageJ). Because root images vary in quality and complexity, " \
+    "all measurements should be reviewed manually before being used for analysis."
+)
 
 
-st.text(' ')
-st.text(' ')
-st.header("How to Use this Program:", divider='rainbow')
-st.write("1. Insert the microscope conversion factor from the specific microscope used for imaging")
-st.write("2. Set your upper and lower limits for root hair length (It is recommended to set these as 110 and 10 respectively)")
-st.write("3. Upload a T0 (left) and a T1 photo (right) of a root ")
-st.write("4. Click 'Analyze' on both sides")
-st.write("5. You will see an image populate below that shows highlights for the individual root hairs found by the program (note: This program will not work well with messy root hairs. It is not a professional tool and is far from perfect.)")
-st.write("6. You can hover over blue, highlighted root hairs to find their length (The length is also displayed underneath the 'Analyze' buttons.)")
-st.write("7. If you are happy with the root(s), click 'Add to Table', and the measurement(s) will be added to a column in the table below")
-st.write("8. Ideally, you will find the same root hair on both images and add both measurements to the table as a pair")
+st.info(
+    """
+**Important:** This program is best used on relatively clean root images with clearly visible individual root hairs.  
+Messy or overlapping hairs may produce inaccurate detections, so manual verification is strongly recommended.
+"""
+)
 
-st.text(' ')
-st.write("Final note: For those in Dr. Clark's lab, this table can be directly copy-and-pasted into an excel template.")
+st.write(
+    "For questions, issues, or feedback, contact: "
+    "**[anto2005antony@gmail.com](mailto:anto2005antony@gmail.com)**"
+)
+
+st.write("")
+st.header("How to Use the Program", divider="rainbow")
+
+st.write(
+    """#### 1) Enter analysis settings
+- Enter the **microscope conversion factor** for the microscope used to capture the images.
+- Set the **upper** and **lower** length thresholds for valid root hairs.
+- Recommended starting values: **110 µm** for the upper threshold and **10 µm** for the lower threshold.
+"""
+)
+
+st.write(
+    """#### 2) Upload images
+- Upload the **T0 image** in the **left column**.
+- Upload the **T1 image** in the **right column**.
+"""
+)
+
+st.write(
+    """#### 3) Run the analysis
+- Click **Analyze** on each side.
+- After analysis, an interactive image will appear below each upload panel showing the root hairs detected by the program.
+"""
+)
+
+st.write(
+    """#### 4) Review individual root hairs
+- Use the **Previous** and **Next** buttons to cycle through detected root hairs one at a time.
+- Hover over a highlighted root hair to view its measured length.
+- The currently selected root hair length will also be displayed beneath the image.
+"""
+)
+
+st.write(
+    """#### 5) Add measurements to the table
+- If a highlighted root hair appears correct, click **Add to Table** to add that measurement to the T0 or T1 column below.
+- When possible, add matching **T0** and **T1** measurements to the same row so they remain paired for later analysis.
+"""
+)
+
+st.write(
+    """#### 6) Export / transfer measurements
+- The table at the bottom of the page can be copied into an Excel worksheet for downstream analysis.
+"""
+)
+
+st.text(" ")
+st.text(" ")
+
+
+st.error(
+    "This tool is intended to assist with measurement, not to serve as a final source of truth. "
+    "Always review highlighted hairs before recording results."
+)
