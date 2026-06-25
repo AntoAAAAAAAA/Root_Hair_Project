@@ -174,9 +174,8 @@ with col1:
             else:
                 length1 = st.session_state.traces1[indx-1][1]
                 c1, c2, c3 = st.columns(3)
-                c2.text(f'Length: {length1:.2f} µm')
-                
-                if c2.button("Add to table"):
+                colu2.text(f'Length: {length1:.2f} µm')
+                if colu2.button("Add to table"):
                     st.session_state['col1_list'].append(length1)
                     st.toast('Value added')
 
