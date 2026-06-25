@@ -1,5 +1,7 @@
 # Root Hair Analyzer
 
+Link to project: [Click Here](https://roothairanalyzer.streamlit.app/)
+
 A Streamlit-based image analysis tool for semi-automated root hair detection, masking, visualization, and measurement from microscopy images.
 
 This project was developed to reduce the amount of manual work required when measuring root hairs in plant microscopy images. The current version is primarily a **computer vision / visual processing pipeline** that uses thresholding, connected components, morphology, skeletonization, and segmentation-assisted processing to detect the main root, isolate candidate root hairs, and estimate root hair lengths.
