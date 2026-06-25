@@ -178,7 +178,7 @@ with col1:
                 colu2.text(f'Length: {length1:.2f} µm')
                 if colu2.button("Add to table"):
                     st.session_state['col1_list'].append(length1)
-                    st.toast('Value added')
+                    st.toast(f'{length1:.2f} added to T0', icon='➕')
 
 with col2:
     uploaded_file2 = st.file_uploader(
@@ -266,7 +266,7 @@ with col2:
                 colu2.text(f'Length: {length2:.2f} µm')
                 if colu2.button("Add to table", key="add_to_table2"):
                     st.session_state['col2_list'].append(length2)
-                    st.toast('Value added')
+                    st.toast(f'{length2:.2f} added to T1', icon='➕')
 
 
 st.divider()
