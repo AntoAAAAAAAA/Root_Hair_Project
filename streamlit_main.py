@@ -121,7 +121,7 @@ with col1:
                 col1.error("Microscope conversion factor is missing")
 
             elif st.session_state['image_gray1'] is None:
-                st.error("No image for analysis provided or in memory")
+                col1.error("No image for analysis provided or in memory")
             
             else:
                 with st.spinner('', show_time=True):
@@ -215,7 +215,7 @@ with col2:
                 col2.error("Microscope conversion factor is missing")
             
             elif st.session_state['image_gray2'] is None:
-                st.error("No image for analysis provided or in memory")
+                col2.error("No image for analysis provided or in memory")
 
             else:
                 with st.spinner('', show_time=True):
