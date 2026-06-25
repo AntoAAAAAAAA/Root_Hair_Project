@@ -64,6 +64,14 @@ if 'final_table' not in st.session_state:
 st.title('Root Hair Analyzer')
 st.divider()
 
+left, middle, right = st.columns(3)
+if left.button("Go back to Instructions", type="primary", use_container_width=True):
+    st.switch_page("streamlit_instr.py")
+st.text('')
+st.text('')
+st.text('')
+st.text('')
+
 ### -----Microscope convertion factor--------
 microscope_conversion_factor = st.number_input(
     'Microscope Conversion Factor:', 
