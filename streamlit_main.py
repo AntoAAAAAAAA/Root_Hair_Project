@@ -125,6 +125,7 @@ with col1:
 
                 for trace, length in traces1:
                     base_image = px.imshow(image_gray1, binary_string=True)
+                    base_image.update_layout(height=800)
                     
                     base_image.data[0].hovertemplate = None
                     base_image.data[0].hoverinfo = "skip"
