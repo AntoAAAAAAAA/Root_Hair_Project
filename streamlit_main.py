@@ -112,8 +112,15 @@ with col1:
 
     co1, co2, co3 = st.columns(3)
     with co2: 
-        if st.button("Analyze", key='analysis1'):
-            if st.session_state['image_gray1'] is not None:
+        if st.button("Analyze", key='analysis1', type='primary'):
+           
+            if st.session_state['conversion factor'] == 0.0:
+                st.error("Microscope conversion factor is missing")
+
+            elif st.session_state['image_gray1'] is None:
+                st.error("No image for analysis provided or in memory")
+            
+            else:
                 image_gray1 = st.session_state['image_gray1']
                 image_color1 = st.session_state['image_color1']
 
@@ -141,8 +148,7 @@ with col1:
                 st.session_state["hair_index1"] = 0
                 st.session_state['selected_image1'] = image_list1[0]
 
-            else:
-                st.error("No image for analysis provided or in memory")
+            
 
     if st.session_state['image_list1'] is not None:
         st.divider()
@@ -200,8 +206,14 @@ with col2:
 
     co1, co2, co3 = st.columns(3)
     with co2: 
-        if st.button("Analyze", key='analysis2'):
-            if st.session_state['image_gray2'] is not None:
+        if st.button("Analyze", key='analysis2', type='primary'):
+            if st.session_state['conversion factor'] == 0.0:
+                st.error("Microscope conversion factor is missing")
+            
+            elif st.session_state['image_gray2'] is None:
+                st.error("No image for analysis provided or in memory")
+
+            else:
                 image_gray2 = st.session_state['image_gray2']
                 image_color2 = st.session_state['image_color2']
 
@@ -229,8 +241,7 @@ with col2:
                 st.session_state["hair_index2"] = 0
                 st.session_state['selected_image2'] = image_list2[0]
 
-            else:
-                st.error("No image for analysis provided or in memory")
+           
 
     if st.session_state['image_list2'] is not None:
         st.divider()
