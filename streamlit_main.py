@@ -59,6 +59,7 @@ if 'final_table' not in st.session_state:
 
 
 st.title('Root Hair Analyzer')
+st.divider()
 
 ### -----Microscope convertion factor--------
 microscope_conversion_factor = st.number_input(
@@ -176,7 +177,7 @@ with col1:
                 length1 = st.session_state.traces1[indx-1][1]
                 c1, c2, c3 = st.columns(3)
                 colu2.text(f'Length: {length1:.2f} µm')
-                if colu2.button("Add to table"):
+                if colu2.button("Add to Table"):
                     st.session_state['col1_list'].append(length1)
                     st.toast(f'{length1:.2f} added to T0', icon='➕')
 
@@ -264,7 +265,7 @@ with col2:
                 length2 = st.session_state.traces2[indx-1][1]
                 c1, c2, c3 = st.columns(3)
                 colu2.text(f'Length: {length2:.2f} µm')
-                if colu2.button("Add to table", key="add_to_table2"):
+                if colu2.button("Add to Table", key="add_to_table2"):
                     st.session_state['col2_list'].append(length2)
                     st.toast(f'{length2:.2f} added to T1', icon='➕')
 
