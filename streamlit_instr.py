@@ -22,18 +22,6 @@ st.write(
     "**[anto2005antony@gmail.com](mailto:anto2005antony@gmail.com)**"
 )
 
-st.text(" ")
-st.text(" ")
-st.text(" ")
-st.text(" ")
-c1, c2, c3 = st.columns(3)
-with c2:
-    if st.button("Go to Root Hair Analyzer", type="primary", use_container_width=True):
-        st.switch_page("streamlit_main.py")
-st.text(" ")
-st.text(" ")
-st.text(" ")
-st.text(" ")
 
 st.header("How to Use the Program", divider="rainbow")
 
@@ -82,6 +70,14 @@ st.write(
 
 st.text(" ")
 st.text(" ")
+
+
+
+with st._bottom:
+    c1, c2, c3 = st.columns(3)
+    with c2:
+        if st.button("Go to Root Hair Analyzer", type="primary", use_container_width=True):
+            st.switch_page("streamlit_main.py")
 
 
 st.error(
