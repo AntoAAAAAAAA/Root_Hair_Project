@@ -10,7 +10,6 @@ if pg == instr:
     current_layout = 'centered'
 if pg == main_page:
     current_layout = 'wide'
-
 st.set_page_config(layout=current_layout)
 
 pg.run()
