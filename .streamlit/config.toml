@@ -13,16 +13,16 @@
 # A TOML theme file must contain a [theme] table with theme options.
 # Any theme options defined in the app's config.toml file will override
 # those defined in the TOML theme file.
-base = "light"
+# base = "light"  
 
 # Primary accent color.
-# primaryColor =
+primaryColor = "#88d166"
 
 # Background color of the app.
 # backgroundColor = "#dbfbd3"
 
 # Background color used for most interactive widgets.
-# secondaryBackgroundColor = "#59ac44"
+# secondaryBackgroundColor = "#cdffc1"
 
 # Color used for almost all text.
 # textColor =
@@ -295,7 +295,7 @@ base = "light"
 # positive integer.
 #
 # If this isn't set, the font size will be 16px.
-baseFontSize = 16
+# baseFontSize = 16
 
 # The root font weight for the app.
 #
@@ -303,7 +303,7 @@ baseFontSize = 16
 # integer multiple of 100. Values can be between 100 and 600, inclusive.
 #
 # If this isn't set, the font weight will be set to 400 (normal weight).
-baseFontWeight = 400
+# baseFontWeight = 400
 
 # The font family to use for headings.
 #
@@ -430,7 +430,7 @@ baseFontWeight = 400
 # practices, use rem instead of pixels when specifying a numeric size.
 #
 # If this isn't set, Streamlit uses `theme.baseRadius` instead.
-buttonRadius = 'full'
+# buttonRadius = 'full'
 
 # The color of the border around elements.
 # borderColor =
@@ -447,7 +447,7 @@ buttonRadius = 'full'
 # the bottom row of data editors with a dynamic number of rows. If this
 # isn't set, Streamlit uses a mix of `theme.backgroundColor` and
 # `theme.secondaryBackgroundColor`.
-dataframeHeaderBackgroundColor = '#ebffeb'
+# dataframeHeaderBackgroundColor = '#ebffeb'
 
 # Whether to show a border around input widgets.
 # showWidgetBorder = 
