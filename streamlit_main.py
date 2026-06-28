@@ -62,7 +62,7 @@ if 'col2_list' not in st.session_state:
 
 
 if 'final_table' not in st.session_state:
-    st.session_state['final_table'] = pd.DataFrame(columns=['T0', 'T1'])
+    st.session_state['final_table'] = pd.DataFrame(columns=['T0 Measurements (μm)', 'T0 Measurements (μm)'])
 
 
 ### -----Title--------
@@ -314,14 +314,14 @@ t0_padded = t0 + [None] * (max_len - len(t0))
 t1_padded = t1 + [None] * (max_len - len(t1))
 
 table_df = pd.DataFrame({
-            "T0": t0_padded,
-            "T1": t1_padded
+            "T0 Measurements (μm)": t0_padded,
+            "T1 Measurements (μm)": t1_padded
             })
 
 edited_table = st.data_editor(table_df, height=250, hide_index=True, num_rows='dynamic')
 
-st.session_state['col1_list'] = (pd.to_numeric(edited_table["T0"], errors="coerce").dropna().tolist())
-st.session_state['col2_list'] = (pd.to_numeric(edited_table["T1"], errors="coerce").dropna().tolist())
+st.session_state['col1_list'] = (pd.to_numeric(edited_table["T0 Measurements (μm)"], errors="coerce").dropna().tolist())
+st.session_state['col2_list'] = (pd.to_numeric(edited_table["T1 Measurements (μm)"], errors="coerce").dropna().tolist())
 
 ### -----Remove Entries from Table--------
 
