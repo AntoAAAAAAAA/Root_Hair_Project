@@ -79,12 +79,14 @@ st.text('')
 st.text('')
 
 ### -----Microscope convertion factor--------
-microscope_conversion_factor = st.number_input(
+column1, column2, column3 = st.columns([1, 1, 1])
+microscope_conversion_factor = column2.number_input(    
     'Microscope Conversion Factor:', 
     min_value=0.0, 
     step=0.00000001, 
     format='%.10f',
     value= st.session_state['conversion factor'])
+st.text(' ')
 
 st.session_state['conversion factor'] = microscope_conversion_factor
 
@@ -129,6 +131,7 @@ with col1:
 
     co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
     with co4: 
+        st.text(' ')
         if st.button("Analyze", key='analysis1', type='primary'):
            
             if st.session_state['conversion factor'] == 0.0:
@@ -223,6 +226,7 @@ with col2:
 
     co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
     with co4:  
+        st.text(' ')
         if st.button("Analyze", key='analysis2', type='primary'):
             
             if st.session_state['conversion factor'] == 0.0:
