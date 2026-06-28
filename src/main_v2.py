@@ -13,7 +13,7 @@ from src.final_visualize import *
 from src.hybrid_ML import *
 
 # Note: Always include image_gray as an input for mains. Streamlit is weird with grayscale conversion, so this is necessary
-def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
+def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model):
     '''
     Returns:
         tuple:
@@ -31,7 +31,7 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower):
     print("=" * 50)
 
     # Find main root and create root hair mask 
-    sam_mask_grayscale, root_hair_mask  = hybrid_main2(image, image_gray)
+    sam_mask_grayscale, root_hair_mask  = hybrid_main2(image, image_gray, model)
 
     # Analyze individual root hairs and filter valid ones
     print('\n')
