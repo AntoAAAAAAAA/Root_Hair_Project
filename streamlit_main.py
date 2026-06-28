@@ -79,8 +79,8 @@ st.text('')
 st.text('')
 
 ### -----Microscope convertion factor--------
-column1, column2, column3 = st.columns([1, 1, 1])
-microscope_conversion_factor = column2.number_input(    
+column1, column2 = st.columns(2)
+microscope_conversion_factor = column1.number_input(    
     'Microscope Conversion Factor:', 
     min_value=0.0, 
     step=0.00000001, 
