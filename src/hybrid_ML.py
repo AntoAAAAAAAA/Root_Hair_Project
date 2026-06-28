@@ -58,7 +58,7 @@ def hybrid_main(image, image_gray):
     
     return sam_core_grayscale, final_subtracted_mask, thresh_mask, binary_mask, core
 
-def hybrid_main2(image, image_gray):
+def hybrid_main2(image, image_gray, model):
     '''This version uses SAM to subtract out the background. The resulting image 
     is then thresholded twice: 1) whole root w/ hairs and 2) core main root only. 
     The core threshold is used to create a bounding rectangle, which is then given to SAM-2 
@@ -76,7 +76,6 @@ def hybrid_main2(image, image_gray):
     '''
 
     # Uses SAM-2, large model
-    model = SAM('sam2_l.pt')
     print('\n')
     print('[1/5] Running SAM full-image segmentation...')
     # Run model using bounding box that has 4 points of the image

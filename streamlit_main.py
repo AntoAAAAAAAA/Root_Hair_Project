@@ -8,9 +8,15 @@ import scipy as scipy
 import plotly as plot
 import streamlit as st
 import plotly.express as px
+from ultralytics import SAM
 from src.main_v2 import *
 
 ### -----Session State Initiations--------
+
+@st.cache_resource
+def loadSamModel():
+    return SAM("sam2_l.pt")
+model = loadSamModel()
 
 if 'conversion factor' not in st.session_state:
     st.session_state['conversion factor'] = 0.0
@@ -119,7 +125,7 @@ with col1:
         st.session_state['image_gray1'] = image_gray1
         image_color1 = cv2.imdecode(file_bytes1, cv2.IMREAD_COLOR)
         st.session_state['image_color1'] = image_color1
-        st.image(uploaded_file1, caption="T0 Grayscale image", )
+        st.image(uploaded_file1, caption="T0 image", )
 
     co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
     with co4: 
@@ -136,7 +142,7 @@ with col1:
                     image_gray1 = st.session_state['image_gray1']
                     image_color1 = st.session_state['image_color1']
 
-                    fig1, traces1 = main_v2(image_color1, image_gray1, microscope_conversion_factor, upper, lower)
+                    fig1, traces1 = main_v2(image_color1, image_gray1, microscope_conversion_factor, upper, lower, model)
                     st.session_state['traces1'] = traces1
                     st.session_state['fig1'] = fig1
 
@@ -213,7 +219,7 @@ with col2:
         st.session_state['image_gray2'] = image_gray2
         image_color2 = cv2.imdecode(file_bytes2, cv2.IMREAD_COLOR)
         st.session_state['image_color2'] = image_color2
-        st.image(uploaded_file2, caption="T1 Grayscale image", )
+        st.image(uploaded_file2, caption="T1 image", )
 
     co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
     with co4:  
@@ -230,7 +236,7 @@ with col2:
                     image_gray2 = st.session_state['image_gray2']
                     image_color2 = st.session_state['image_color2']
 
-                    fig2, traces2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower)
+                    fig2, traces2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower, model)
                     st.session_state['traces2'] = traces2
                     st.session_state['fig2'] = fig2
 
