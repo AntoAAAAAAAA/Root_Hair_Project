@@ -14,3 +14,6 @@ if pg == main_page:
 st.set_page_config(layout=current_layout)
 
 pg.run()
+
+with st.sidebar:
+    st.caption("Made in :streamlit: by Anto A.")

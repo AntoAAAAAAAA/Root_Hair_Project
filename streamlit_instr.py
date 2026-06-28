@@ -73,7 +73,7 @@ st.text(" ")
 
 
 
-with st._bottom:
+with st.bottom: 
     c1, c2, c3 = st.columns(3)
     with c2:
         if st.button("Go to Root Hair Analyzer", type="primary", use_container_width=True):
