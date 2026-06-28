@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.header("Root Hair Analyzer", divider="rainbow")
+st.header("Root Hair Analyzer", divider="green")
 
 st.write(
     "This tool was developed for use in **Dr. Clark’s Freshman Research Initiative lab** "
@@ -23,7 +23,7 @@ st.write(
 )
 
 
-st.header("How to Use the Program", divider="rainbow")
+st.header("How to Use the Program", divider="green")
 
 st.write(
     """#### 1) Enter analysis settings
