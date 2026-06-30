@@ -67,7 +67,7 @@ def hybrid_main2(image, image_gray, model):
     only the root hairs.  
 
     Returns:
-        tuple:
+        dict:
             sam_mask_grayscale (np.ndarray): Binary mask of the detected main root
                 after SAM-assisted segmentation and grayscale processing.
             
