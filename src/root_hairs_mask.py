@@ -40,7 +40,7 @@ def findBranchLength(y, x, neighbors, length_per_branch, root_hair_pixel_set,
     # Assuming none of the surrounding pixels meet our criteria, we can end the function 
     return current_length               
 
-def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion_factor, upper, lower):
+def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower):
     ''''This function takes each component of the skeletonized hair mask and filters valid root hairs. '
     The function chooses root hairs based on connectivity to main root, length parameters, the validity of endpoints, 
     and lack of branching, and measures them.
@@ -183,13 +183,14 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
         # Check if root hair is within a reasonable distance to the main root 
         coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
         coords_of_endpoints = [(y + y_min, x + x_min) for y,x in coords_of_endpoints]
-        coords_of_contour = contour[0].reshape(-1, 2)
-        coords_of_contour = set(map(tuple, coords_of_contour.tolist()))
+        all_contours = np.vstack(contours)
+        coords_of_contours = all_contours.reshape(-1, 2)
+        coords_of_contours = set(map(tuple, coords_of_contours.tolist()))
 
         endpoint_near_root = False
         for y,x in coords_of_endpoints:
-            for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contour
-                if (x+n, y) in coords_of_contour or (x-n, y) in coords_of_contour:
+            for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
+                if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
                     endpoint_near_root = True
                     break
             if endpoint_near_root:
