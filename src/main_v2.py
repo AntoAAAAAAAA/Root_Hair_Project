@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     '''Testing: To find root_hair mask of one image with its path.'''
     '''134-149'''
-    image_path = '/Users/antoantony/Root_hair_hybrid_tests/root_hair_150/images/predict/147.bmp'
+    image_path = '/Users/antoantony/Root_hair_hybrid_tests/root_hair_150/images/predict/144.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
     model = SAM('Root_Hair/sam2_l.pt') 
