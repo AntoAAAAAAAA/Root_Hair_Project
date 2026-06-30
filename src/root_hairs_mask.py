@@ -86,7 +86,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
         x_min = max(0, x.min() - adjustment)
         x_max = min(w-1, x.max() + adjustment)
         cropped_component_mask = root_hair_mask[y_min:y_max+1, x_min:x_max+1]
-        
+
         # Create a set of every pixel that makes up the root hair 
         coords = np.argwhere(cropped_component_mask > 0)
         root_hair_pixel_set = set(tuple(coordinate) for coordinate in coords)
@@ -188,7 +188,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
 
         endpoint_near_root = False
         for y,x in coords_of_endpoints:
-            for n in range(1,8): # check if any of the pixels within a 20 pixel radius of the endpoint are in the contour
+            for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contour
                 if (x+n, y) in coords_of_contour or (x-n, y) in coords_of_contour:
                     endpoint_near_root = True
                     break
@@ -207,9 +207,26 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contour, microscope_conversion
             'id': i,
             'mask': root_hair_mask,
             'thicker mask': thicker_mask,
+            'cropped_component_mask': cropped_component_mask,
             'length': length,
             'length in microns': length_in_microns,
         })
+
+        # testing
+        # for mask_dict in valid_root_hair_masks:
+        #     cropped_component_mask = mask_dict['cropped_component_mask']
+        #     i = mask_dict['id']
+
+        #     debugFolder = 'debug_images'
+        #     os.makedirs(debugFolder, exist_ok= True)
+        #     plt.figure(figsize=(5,5))
+        #     plt.imshow(cropped_component_mask, cmap='gray')
+        #     plt.title(f"Component {i}")
+        #     plt.axis('off')
+        #     plt.savefig(f'{debugFolder}/component_{i}.png', bbox_inches='tight')
+        #     plt.close()
+
+        
 
     print("     Root hair analysis complete")
     return valid_root_hair_masks, components_masks
