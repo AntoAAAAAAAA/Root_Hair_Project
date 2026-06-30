@@ -50,7 +50,12 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
     print('ANALYSIS COMPLETE')
     print('=' * 50)
     print('\n')
-    return fig, traces
+    return {
+        "fig": fig,
+        "traces": traces,
+        "root_hair_mask": root_hair_mask,
+        "valid_root_hair_masks": valid_root_hair_masks
+    }
 
 
 if __name__ == "__main__":
@@ -74,8 +79,11 @@ if __name__ == "__main__":
     image_path = '/Users/antoantony/Root_hair_test_stuff/root_hair_150/images/predict/147.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
-    fig, root_hair_mask, valid_root_hair_masks = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
-                  upper=150.0, lower=10.0)
+    model = SAM('sam2_l.pt') 
+    results_dict = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
+                  upper=150.0, lower=10.0, model=model)
+    fig = results_dict['fig']
+    root_hair_mask = results_dict['root_hair_mask']
     fig.show(renderer='browser')
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))

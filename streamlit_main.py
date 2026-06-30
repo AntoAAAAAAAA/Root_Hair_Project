@@ -145,7 +145,8 @@ with col1:
                     image_gray1 = st.session_state['image_gray1']
                     image_color1 = st.session_state['image_color1']
 
-                    fig1, traces1 = main_v2(image_color1, image_gray1, microscope_conversion_factor, upper, lower, model)
+                    results1 = main_v2(image_color1, image_gray1, microscope_conversion_factor, upper, lower, model)
+                    fig1, traces1 = results1['fig'], results1['traces']
                     st.session_state['traces1'] = traces1
                     st.session_state['fig1'] = fig1
 
@@ -240,7 +241,8 @@ with col2:
                     image_gray2 = st.session_state['image_gray2']
                     image_color2 = st.session_state['image_color2']
 
-                    fig2, traces2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower, model)
+                    results2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower, model)
+                    fig2, traces2 = results1['fig'], results1['traces']
                     st.session_state['traces2'] = traces2
                     st.session_state['fig2'] = fig2
 
