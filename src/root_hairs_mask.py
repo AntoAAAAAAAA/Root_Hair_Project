@@ -222,7 +222,7 @@ def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
     overlay = color_root.copy()
     for i in range(0, len(valid_root_hair_masks)):
         valid_dict = valid_root_hair_masks[i]
-        ind_mask = (valid_dict['mask'] * 255).astype(np.uint8)
+        ind_mask = (valid_dict['thicker mask'] * 255).astype(np.uint8)
         overlay[ind_mask == 255] = [0, 0 , 255]
     root_hair_overlay = cv2.addWeighted(color_root, 0.2, overlay, 0.8, 0)
 
