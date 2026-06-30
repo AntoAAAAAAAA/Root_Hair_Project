@@ -50,11 +50,13 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
     print('ANALYSIS COMPLETE')
     print('=' * 50)
     print('\n')
+
     return {
         "fig": fig,
         "traces": traces,
         "root_hair_mask": root_hair_mask,
-        "valid_root_hair_masks": valid_root_hair_masks
+        "valid_root_hair_masks": valid_root_hair_masks,
+        'contours': contours
     }
 
 
@@ -85,9 +87,29 @@ if __name__ == "__main__":
     results_dict = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
                   upper=300.0, lower=10.0, model=model)
     fig = results_dict['fig']
-
     root_hair_mask = results_dict['root_hair_mask']
+    valid_root_hair_masks = results_dict['valid_root_hair_masks']
+    contours = results_dict['contours']
+
     fig.show(renderer='browser')
+
+    for i, contour in enumerate(contours):
+
+        grayscaleCopy = cv2.cvtColor(image_gray.copy(), cv2.COLOR_GRAY2RGB)
+
+        cv2.drawContours(
+            grayscaleCopy,
+            [contour],
+            -1,
+            (0,0,255),
+            2
+        )
+
+        plt.figure(figsize=(5,5))
+        plt.imshow(grayscaleCopy, cmap="gray")
+        plt.title(f"Contour {i}")
+        plt.axis("off")
+        plt.show()
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))
     ax[0].imshow(image_gray, cmap='gray')
@@ -99,3 +121,5 @@ if __name__ == "__main__":
   
     plt.tight_layout()
     plt.show()
+
+    
