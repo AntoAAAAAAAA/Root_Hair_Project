@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     '''Testing: To find root_hair mask of one image with its path.'''
     '''134-149'''
-    image_path = '/Users/antoantony/Root_hair_hybrid_tests/root_hair_150/images/predict/144.bmp'
+    image_path = '/Users/antoantony/Root_hair_hybrid_tests/root_hair_150/images/predict/147.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
     model = SAM('Root_Hair/sam2_l.pt') 
@@ -92,24 +92,6 @@ if __name__ == "__main__":
     contours = results_dict['contours']
 
     fig.show(renderer='browser')
-
-    for i, contour in enumerate(contours):
-
-        grayscaleCopy = cv2.cvtColor(image_gray.copy(), cv2.COLOR_GRAY2RGB)
-
-        cv2.drawContours(
-            grayscaleCopy,
-            [contour],
-            -1,
-            (0,0,255),
-            2
-        )
-
-        plt.figure(figsize=(5,5))
-        plt.imshow(grayscaleCopy, cmap="gray")
-        plt.title(f"Contour {i}")
-        plt.axis("off")
-        plt.show()
     
     figure, ax = plt.subplots(1,2, figsize=(20,10))
     ax[0].imshow(image_gray, cmap='gray')
@@ -120,6 +102,4 @@ if __name__ == "__main__":
     ax[1].axis('off')
   
     plt.tight_layout()
-    plt.show()
-
-    
+    plt.show()    
