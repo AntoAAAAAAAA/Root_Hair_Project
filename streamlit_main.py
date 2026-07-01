@@ -242,7 +242,7 @@ with col2:
                     image_color2 = st.session_state['image_color2']
 
                     results2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower, model)
-                    fig2, traces2 = results1['fig'], results1['traces']
+                    fig2, traces2 = results2['fig'], results2['traces']
                     st.session_state['traces2'] = traces2
                     st.session_state['fig2'] = fig2
 
