@@ -200,7 +200,8 @@ with col1:
             
             indx = st.session_state.hair_index1
             if indx == 0:
-                st.text("Displaying all valid root hairs found")
+                colol1, colol2, colol3 = st.columns(3, vertical_alignment='center')
+                colol2.text("Displaying all valid root hairs found")
             else:
                 length1 = st.session_state.traces1[indx-1][1]
                 colu3.text(f'Length: {length1:.2f} µm')
@@ -296,7 +297,8 @@ with col2:
             
             indx = st.session_state.hair_index2
             if indx == 0:
-                st.text("Displaying all valid root hairs found")
+                colol1, colol2, colol3 = st.columns(3, vertical_alignment='center')
+                colol2.text("Displaying all valid root hairs found")
             else:
                 length2 = st.session_state.traces2[indx-1][1]
                 colu3.text(f'Length: {length2:.2f} µm')
