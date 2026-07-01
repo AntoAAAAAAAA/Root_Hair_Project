@@ -68,9 +68,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
 
     # filtered = 0 # for testing
 
-    # Check if root hair is within a reasonable distance to the main root 
-    coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
-    coords_of_endpoints = [(y + y_min, x + x_min) for y,x in coords_of_endpoints]
+    # Create set of coordinates that make up contour of main root 
     all_contours = np.vstack(contours)
     coords_of_contours = all_contours.reshape(-1, 2)
     coords_of_contours = set(map(tuple, coords_of_contours.tolist()))
@@ -186,7 +184,10 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
         # Exclude root hairs that are too long/too short  
         if length_in_microns > upper or length_in_microns < lower: 
             continue
-
+        
+        # Check if root hair is within a reasonable distance to the main root 
+        coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
+        coords_of_endpoints = [(y + y_min, x + x_min) for y,x in coords_of_endpoints]
         endpoint_near_root = False
         for y,x in coords_of_endpoints:
             for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
