@@ -177,7 +177,7 @@ with col1:
         colu1, colu2, colu3, colu4, colu5 = st.columns(5)
         
         with colu1:
-            if st.button('Previous', key='previous_hair1'):
+            if st.button('←', key='previous_hair1'):
                 st.session_state['hair_index1'] -= 1
 
                 if st.session_state["hair_index1"] < 0:
@@ -186,7 +186,7 @@ with col1:
                 st.session_state['selected_image1'] = st.session_state.image_list1[st.session_state['hair_index1']]
             
         with colu5:
-            if st.button('Next', key='next_hair1'):
+            if st.button('→', key='next_hair1'):
                 st.session_state['hair_index1'] += 1
 
                 if st.session_state["hair_index1"] >= len(st.session_state["image_list1"]):
@@ -274,7 +274,7 @@ with col2:
         colu1, colu2, colu3, colu4, colu5 = st.columns(5)
         
         with colu1:
-            if st.button('Previous', key='previous_hair2'):
+            if st.button('←', key='previous_hair2'):
                 st.session_state['hair_index2'] -= 1
 
                 if st.session_state["hair_index2"] < 0:
@@ -283,7 +283,7 @@ with col2:
                 st.session_state['selected_image2'] = st.session_state.image_list2[st.session_state['hair_index2']]
             
         with colu5:
-            if st.button('Next', key='next_hair2'):
+            if st.button('→', key='next_hair2'):
                 st.session_state['hair_index2'] += 1
 
                 if st.session_state["hair_index2"] >= len(st.session_state["image_list2"]):
