@@ -62,7 +62,7 @@ if 'col2_list' not in st.session_state:
 
 
 if 'final_table' not in st.session_state:
-    st.session_state['final_table'] = pd.DataFrame(columns=['T0 Measurements (μm)', 'T0 Measurements (μm)'])
+    st.session_state['final_table'] = pd.DataFrame(columns=['T0 Measurements (μm)', 'T1 Measurements (μm)'])
 
 
 ### -----Title--------
@@ -111,49 +111,52 @@ with column2:
 
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
-def column(imageGrayST, imageColorST, imageTraceST, figST, imageListST, hairIdxST, selectedImageST, colListST):
+def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
+           figKey, imageListKey, hairIdxKey, selectedImagesKey, previousArrowKey, 
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T):
+    
     uploaded_file = st.file_uploader(
         "Upload an image",
         type=["bmp", "png", "jpg", "jpeg", "tif", "tiff"],
-        key='1'
+        key=uploadKey
     )
 
-    image_gray1 = None
+    image_gray = None
     if uploaded_file is not None:
         uploaded_file.seek(0) # reset file pointer to the beginning  
         file_bytes = np.frombuffer(uploaded_file.read(), np.uint8)
-        image_gray1 = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)
-        imageGrayST = image_gray1
-        image_color1 = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-        imageColorST = image_color1
-        st.image(uploaded_file, caption="T0 image", )
+        image_gray = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)
+        st.session_state[imageGrayKey] = image_gray
+        image_color = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        st.session_state[imageColorKey] = image_color
+        st.image(uploaded_file, caption=imageCaption)
 
     co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
     with co4: 
         st.text(' ')
-        if st.button("Analyze", key='analysis1', type='primary'):
-        
-            if st.session_state['conversion factor'] == 0.0:
-                col1.error("Microscope conversion factor is missing")
+        if st.button("Analyze", key=analyzeButtonKey, type='primary'):
+           
+            if st.session_state[conversionFactorKey] == 0.0:
+                st.toast("Microscope conversion factor is missing!")
 
-            elif imageGrayST is None:
-                col1.error("No image for analysis provided or in memory")
+            elif st.session_state[imageGrayKey] is None:
+                st.toast("No image for analysis provided or in memory!")
             
             else:
                 with st.spinner('', show_time=True):
-                    image_gray1 = imageGrayST
-                    image_color1 = imageColorST
+                    image_gray = st.session_state[imageGrayKey]
+                    image_color = st.session_state[imageColorKey]
 
-                    results1 = main_v2(image_color1, image_gray1, microscope_conversion_factor, upper, lower, model)
-                    fig1, traces1 = results1['fig'], results1['traces']
-                    imageTraceST = traces1
-                    figST = fig1
+                    results = main_v2(image_color, image_gray, microscope_conversion_factor, upper, lower, model)
+                    fig, traces = results['fig'], results['traces']
+                    st.session_state[tracesKey] = traces
+                    st.session_state[figKey] = fig
 
-                    image_list1 = []
-                    image_list1.insert(0, fig1)
+                    image_list = []
+                    image_list.insert(0, fig)
 
-                    for trace, length in traces1:
-                        base_image = px.imshow(image_gray1, binary_string=True)
+                    for trace, length in traces:
+                        base_image = px.imshow(image_gray, binary_string=True)
                         base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0))
                         
                         base_image.data[0].hovertemplate = None
@@ -163,159 +166,96 @@ def column(imageGrayST, imageColorST, imageTraceST, figST, imageListST, hairIdxS
                         base_image.update_yaxes(visible=False)
                         base_image.update_xaxes(visible=False)
 
-                        image_list1.append(base_image)
+                        image_list.append(base_image)
 
-                    imageListST = image_list1
-                    hairIdxST = 0
-                    selectedImageST = image_list1[0]
+                    st.session_state[imageListKey] = image_list
+                    st.session_state[hairIdxKey] = 0
+                    st.session_state[selectedImagesKey] = image_list[0]
 
             
 
-    if imageListST is not None:
+    if st.session_state[imageListKey] is not None:
         st.divider()
         colu1, colu2, colu3, colu4, colu5 = st.columns(5)
         
         with colu1:
-            if st.button('←', key='previous_hair1'):
-                hairIdxST -= 1
+            if st.button('←', key= previousArrowKey):
+                st.session_state[hairIdxKey] -= 1
 
-                if hairIdxST < 0:
-                    hairIdxST = len(imageListST) - 1
+                if st.session_state[hairIdxKey] < 0:
+                    st.session_state[hairIdxKey] = len(st.session_state[imageListKey]) - 1
 
-                selectedImageST = imageListST[hairIdxST]
+                st.session_state[selectedImagesKey] = st.session_state[imageListKey][st.session_state[hairIdxKey]]
             
         with colu5:
-            if st.button('→', key='next_hair1'):
-                hairIdxST += 1
-                if hairIdxST >= len(imageListST):
-                    hairIdxST = 0
+            if st.button('→', key= forwardArrowKey):
+                st.session_state[hairIdxKey] += 1
 
-                selectedImageST = imageListST[hairIdxST]
+                if st.session_state[hairIdxKey] >= len(st.session_state[imageListKey]):
+                    st.session_state[hairIdxKey] = 0
 
-        if selectedImageST is not None:
+                st.session_state[selectedImagesKey] = st.session_state[imageListKey][st.session_state[hairIdxKey]]
+
+        if st.session_state[selectedImagesKey] is not None:
             
-            st.plotly_chart(selectedImageST, width='stretch', height='stretch', key='plotly1')
+            st.plotly_chart(st.session_state[selectedImagesKey], width='stretch', height='stretch', key=plotlyKey)
             
-            indx = hairIdxST
+            indx = st.session_state[hairIdxKey]
             if indx == 0:
                 colol1, colol2, colol3 = st.columns(3, vertical_alignment='center')
                 colol2.text("Displaying all valid root hairs found")
             else:
-                length1 = imageTraceST[indx-1][1]
-                colu3.text(f'Length: {length1:.2f} µm')
-                if colu3.button("Add to Table"):
-                    colListST.append(length1)
-                    st.toast(f'{length1:.2f} added to T0', icon='➕')
-
+                length = st.session_state[tracesKey][indx-1][1]
+                colu3.text(f'Length: {length:.2f} µm')
+                if colu3.button("Add to Table", key = addToTableKey):
+                    st.session_state[colListKey].append(length)
+                    st.toast(f'{length:.2f} added to {T}', icon='➕')
 
 with col1:
-    imageGrayST = st.session_state['image_gray1']
-    imageColorST = st.session_state['image_color1']
-    imageTraceST = st.session_state['traces1']
-    figST = st.session_state['fig1']
-    imageListST = st.session_state['image_list1']
-    hairIdxST = st.session_state['hair_index1']
-    selectedImageST = st.session_state['selected_image1']
-    colListST = st.session_state['col1_list']
-    column()
+    uploadKey = '1'
+    imageGrayKey = 'image_gray1'
+    imageColorKey = 'image_color1'
+    imageCaption = 'T0 image'
+    analyzeButtonKey = 'analysis1'
+    conversionFactorKey = 'conversion factor'
+    tracesKey = 'traces1'
+    figKey = 'fig1'
+    imageListKey = 'image_list1'
+    hairIdxKey = 'hair_index1'
+    selectedImagesKey = 'selected_image1'
+    previousArrowKey = 'previous_hair1'
+    forwardArrowKey = 'next_hair1'
+    addToTableKey = 'add_to_table1'
+    plotlyKey = 'plotly1'
+    colListKey = 'col1_list'
+    T = 'T0'
+    column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
+           figKey, imageListKey, hairIdxKey, selectedImagesKey, previousArrowKey, 
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
 
 
 with col2:
-    uploaded_file2 = st.file_uploader(
-        "Upload an image",
-        type=["bmp", "png", "jpg", "jpeg", "tif", "tiff"],
-        key='2'
-    )
+    uploadKey = '2'
+    imageGrayKey = 'image_gray2'
+    imageColorKey = 'image_color2'
+    imageCaption = 'T1 image'
+    analyzeButtonKey = 'analysis2'
+    conversionFactorKey = 'conversion factor'
+    tracesKey = 'traces2'
+    figKey = 'fig2'
+    imageListKey = 'image_list2'
+    hairIdxKey = 'hair_index2'
+    selectedImagesKey = 'selected_image2'
+    previousArrowKey = 'previous_hair2'
+    forwardArrowKey = 'next_hair2'
+    addToTableKey = 'add_to_table2'
+    plotlyKey = 'plotly2'
+    colListKey = 'col2_list'
+    T = 'T1'
+    column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
+           figKey, imageListKey, hairIdxKey, selectedImagesKey, previousArrowKey, 
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
 
-    image_gray2 = None
-    if uploaded_file2 is not None:
-        uploaded_file2.seek(0) # reset file pointer to the beginning  
-        file_bytes2 = np.frombuffer(uploaded_file2.read(), np.uint8)
-        image_gray2 = cv2.imdecode(file_bytes2, cv2.IMREAD_GRAYSCALE)
-        st.session_state['image_gray2'] = image_gray2
-        image_color2 = cv2.imdecode(file_bytes2, cv2.IMREAD_COLOR)
-        st.session_state['image_color2'] = image_color2
-        st.image(uploaded_file2, caption="T1 image", )
-
-    co1, co2, co3, co4, co5, co6, co7 = st.columns(7)
-    with co4:  
-        st.text(' ')
-        if st.button("Analyze", key='analysis2', type='primary'):
-            
-            if st.session_state['conversion factor'] == 0.0:
-                col2.error("Microscope conversion factor is missing")
-            
-            elif st.session_state['image_gray2'] is None:
-                col2.error("No image for analysis provided or in memory")
-
-            else:
-                with st.spinner('', show_time=True):
-                    image_gray2 = st.session_state['image_gray2']
-                    image_color2 = st.session_state['image_color2']
-
-                    results2 = main_v2(image_color2, image_gray2, microscope_conversion_factor, upper, lower, model)
-                    fig2, traces2 = results2['fig'], results2['traces']
-                    st.session_state['traces2'] = traces2
-                    st.session_state['fig2'] = fig2
-
-                    image_list2 = []
-                    image_list2.insert(0, fig2)
-
-                    for trace, length in traces2:
-                        base_image = px.imshow(image_gray2, binary_string=True)
-                        base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0)    )
-
-                        base_image.data[0].hovertemplate = None
-                        base_image.data[0].hoverinfo = "skip"
-
-                        base_image.add_trace(trace)
-                        base_image.update_yaxes(visible=False)
-                        base_image.update_xaxes(visible=False)
-
-                        image_list2.append(base_image)
-
-                    st.session_state["image_list2"] = image_list2
-                    st.session_state["hair_index2"] = 0
-                    st.session_state['selected_image2'] = image_list2[0]
-
-           
-
-    if st.session_state['image_list2'] is not None:
-        st.divider()
-        colu1, colu2, colu3, colu4, colu5 = st.columns(5)
-        
-        with colu1:
-            if st.button('←', key='previous_hair2'):
-                st.session_state['hair_index2'] -= 1
-
-                if st.session_state["hair_index2"] < 0:
-                    st.session_state["hair_index2"] = len(st.session_state["image_list2"]) - 1
-
-                st.session_state['selected_image2'] = st.session_state.image_list2[st.session_state['hair_index2']]
-            
-        with colu5:
-            if st.button('→', key='next_hair2'):
-                st.session_state['hair_index2'] += 1
-
-                if st.session_state["hair_index2"] >= len(st.session_state["image_list2"]):
-                    st.session_state["hair_index2"] = 0
-
-                st.session_state['selected_image2'] = st.session_state.image_list2[st.session_state['hair_index2']]
-
-        if st.session_state['selected_image2'] is not None:
-            
-            st.plotly_chart(st.session_state['selected_image2'], width='stretch', height='stretch', key='plotly2')
-            
-            indx = st.session_state.hair_index2
-            if indx == 0:
-                colol1, colol2, colol3 = st.columns(3, vertical_alignment='center')
-                colol2.text("Displaying all valid root hairs found")
-            else:
-                length2 = st.session_state.traces2[indx-1][1]
-                colu3.text(f'Length: {length2:.2f} µm')
-                if colu3.button("Add to Table", key="add_to_table2"):
-                    st.session_state['col2_list'].append(length2)
-                    st.toast(f'{length2:.2f} added to T1', icon='➕')
 st.divider()
 
 ### -----Measurements Table--------
