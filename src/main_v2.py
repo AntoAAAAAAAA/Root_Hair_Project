@@ -7,15 +7,15 @@ import plotly as plot
 import plotly.express as px
 from ultralytics import SAM
 
-# from src.main_root_mask import *
-# from src.root_hairs_mask import *
-# from src.final_visualize import *
-# from src.hybrid_ML import *
+from src.main_root_mask import *
+from src.root_hairs_mask import *
+from src.final_visualize import *
+from src.hybrid_ML import *
 
-from main_root_mask import *
-from root_hairs_mask import *
-from final_visualize import *
-from hybrid_ML import *
+# from main_root_mask import *
+# from root_hairs_mask import *
+# from final_visualize import *
+# from hybrid_ML import *
 
 # Note: Always include image_gray as an input for mains. Streamlit is weird with grayscale conversion, so this is necessary
 def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model):
@@ -84,10 +84,10 @@ if __name__ == "__main__":
 
     '''Testing: To find root_hair mask of one image with its path.'''
     '''134-149'''
-    image_path = '/Users/antoantony/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/2. Sophomore/Fall Semester/Discovering Signals/Images/round 3 images/WT/WT Ctrl T0/WT Ctrl T0_10.bmp'
+    image_path = '/Users/antoantony/Root_hair_hybrid_tests/root_hair_150/images/predict/147.bmp'
     image = cv2.imread(str(image_path))
     image_gray = makeGrayscaleImage(image_path)
-    model = SAM('Root_Hair/sam2_l.pt') 
+    model = SAM('sam2_l.pt') 
 
     results_dict = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
                   upper=300.0, lower=10.0, model=model)
