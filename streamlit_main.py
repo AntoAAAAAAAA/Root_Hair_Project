@@ -16,6 +16,7 @@ from src.main_v2 import *
 @st.cache_resource(show_spinner=False, show_time=False)
 def loadSamModel():
     return SAM("sam2_l.pt")
+
 model = loadSamModel()
 
 if 'conversion factor' not in st.session_state:
