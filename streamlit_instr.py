@@ -78,7 +78,7 @@ with st.bottom:
     c1, c2, c3 = st.columns(3)
     with c2:
         if st.button("Go to Root Hair Analyzer", type="primary", use_container_width=True):
-            st.switch_page("streamlit_main.py")
+            st.switch_page("streamlit_diagnostics.py")
 
 
 st.error(
