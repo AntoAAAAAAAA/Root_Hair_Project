@@ -80,10 +80,11 @@ def hybrid_main2(image, image_gray, model):
     print('[1/5] Running SAM full-image segmentation...')
     # Run model using bounding box that has 4 points of the image
     H, W = image.shape[:2]
-    results = model.predict(image, bboxes = [[0, 0 , W, H]], verbose = False)
+    results1 = model.predict(image, bboxes = [[0, 0 , W, H]], verbose = False)
     print('     Segmentation complete')
     # Find the largest mask --> background 
-    annotated = results[0].masks.data.cpu().numpy()
+    annotated = results1[0].masks.data.cpu().numpy()
+    del results1
     areas = [mask.sum() for mask in annotated]
     largest_idx = np.argmax(areas)
     largest_mask = annotated[largest_idx]
@@ -123,11 +124,12 @@ def hybrid_main2(image, image_gray, model):
     
     # Plug bounding rectangle into SAM and let it extract the main root with optimal accuracy
     print("     SAM prediction begin for main root...")
-    results = model.predict(image, bboxes = [[x, y, x+w, y+h]], verbose = False)
+    results2 = model.predict(image, bboxes = [[x, y, x+w, y+h]], verbose = False)
     print("     SAM main root found!")
     
     # Take SAM mask results and extract the main root (largest one)
-    all_masks = results[0].masks.data.cpu().numpy()
+    all_masks = results2[0].masks.data.cpu().numpy()
+    del results2
     areas = [mask.sum() for mask in all_masks]
     largest_idx = np.argmax(areas)
     sam_core = all_masks[largest_idx]
