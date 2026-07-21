@@ -202,7 +202,7 @@ def summarizeSessionState(label):
 def loadSamModel():
     print(
         "\n[SAM] Cache miss: "
-        "constructing sam2_l.pt",
+        "constructing sam2_b.pt",
         flush=True
     )
 
@@ -211,7 +211,7 @@ def loadSamModel():
     )
 
     model = SAM(
-        "sam2_l.pt"
+        "sam2_b.pt"
     )
 
     logMemoryChange(
