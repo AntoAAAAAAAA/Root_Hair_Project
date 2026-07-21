@@ -207,9 +207,9 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
 
         valid_root_hair_masks.append({
             'id': i,
-            'mask': root_hair_mask,
+            # 'mask': root_hair_mask,
             'thicker mask': thicker_mask,
-            'cropped_component_mask': cropped_component_mask,
+            # 'cropped_component_mask': cropped_component_mask,
             'length': length,
             'length in microns': length_in_microns,
         })
