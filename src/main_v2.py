@@ -42,8 +42,8 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
     print('\n')
     print("[4/5] Analyzing individual root hairs...")
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
-    mask_closed_contour, contours = createContoursAndFill(sam_mask_grayscale)
-    valid_root_hair_masks, components_masks = makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
+    _ , contours = createContoursAndFill(sam_mask_grayscale)
+    valid_root_hair_masks, _ = makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
 
     # Create final visualization (interactive plotly)
     print('\n')
@@ -59,9 +59,11 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
     return {
         "fig": fig,
         "traces": traces,
-        "root_hair_mask": root_hair_mask,
-        "valid_root_hair_masks": valid_root_hair_masks,
-        'contours': contours
+        # # The below are commented out for memory efficiency
+        # "root_hair_mask": root_hair_mask,
+        # "valid_root_hair_masks": valid_root_hair_masks,
+        # 'contours': contours
+        
     }
 
 
