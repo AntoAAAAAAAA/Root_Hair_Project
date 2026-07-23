@@ -40,14 +40,28 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
         id = valid_dict['id']
         length = valid_dict['length in microns']
 
-        # text = f"Component {id} \n Length: {length:.2f}"
-        trace = go.Heatmap(
-            z = ind_mask,
-            #name=f"Component {id}",
-            showscale = False,
-            hoverongaps = False,
-            hovertemplate = f"Length: {length:.2f} µm   "
+        # # text = f"Component {id} \n Length: {length:.2f}"
+        # trace = go.Heatmap(
+        #     z = ind_mask,
+        #     #name=f"Component {id}",
+        #     showscale = False,
+        #     hoverongaps = False,
+        #     hovertemplate = f"Length: {length:.2f} µm   "
+        # )
+        y_coords, x_coords = np.where(ind_mask > 0)
+        import plotly.graph_objects as go
+        trace = go.Scattergl(
+            x=x_coords, y=y_coords, mode="markers",
+            marker=dict(size=3),
+            customdata=np.full(len(x_coords),id),
+            hovertemplate=(
+                f"Hair ID: {id}<br>"
+                f"Length: {length:.2f} µm"
+                "<extra></extra>"
+            ),
+            name=f"Hair {id}"
         )
+
         traces.append((trace, length))
 
     list_traces = [trace for trace, length in traces]
