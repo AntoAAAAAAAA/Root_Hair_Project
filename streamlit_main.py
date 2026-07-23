@@ -11,11 +11,24 @@ import plotly.express as px
 from ultralytics import SAM
 from src.main_v2 import *
 
+# =============
+# Testing
+# =============
+import plotly.io as pio
+
+
+def getPlotlyFigureSizeMb(fig):
+    figure_json = pio.to_json(fig, validate=False)
+    return len(figure_json.encode("utf-8")) / (1024 ** 2)
+
+
+
+
 ### -----Session State Initiations--------
 
 @st.cache_resource(show_spinner=False, show_time=False)
 def loadSamModel():
-    return SAM("sam2_b.pt")
+    return SAM("sam2_l.pt")
 
 model = loadSamModel()
 
@@ -150,13 +163,38 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
 
                     results = main_v2(image_color, image_gray, microscope_conversion_factor, upper, lower, model)
                     fig, traces = results['fig'], results['traces']
+
+                    print(
+                        f"All-hairs figure: "
+                        f"{getPlotlyFigureSizeMb(fig):.2f} MB"
+                    )
+
+
                     st.session_state[tracesKey] = traces
                     st.session_state[figKey] = fig
 
                     image_list = []
                     image_list.insert(0, fig)
 
-                    for trace, length in traces:
+                    for index, (trace, length) in enumerate(traces):
+
+                        trace_figure = plot.graph_objects.Figure(data=[trace])
+                        print(
+                            f"Trace {index}: "
+                            f"type={trace.type}, "
+                            f"size={getPlotlyFigureSizeMb(trace_figure):.2f} MB"
+                        )
+                        print(f"Trace {index} type: {trace.type}")
+
+                        if hasattr(trace, "z") and trace.z is not None:
+                            print(f"Trace {index} z shape: {np.asarray(trace.z).shape}")
+
+                        if hasattr(trace, "x") and trace.x is not None:
+                            print(f"Trace {index} x length: {len(trace.x)}")
+
+                        if hasattr(trace, "y") and trace.y is not None:
+                            print(f"Trace {index} y length: {len(trace.y)}")
+
                         base_image = px.imshow(image_gray, binary_string=True)
                         base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0))
                         
