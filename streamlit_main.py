@@ -112,6 +112,7 @@ with column2:
 
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
+
 def selectImage(image_gray, fig_input, hairidx, traces: list):
     fig = px.imshow(image_gray, binary_string=True)
 
@@ -122,7 +123,7 @@ def selectImage(image_gray, fig_input, hairidx, traces: list):
     if hairidx == 0:
         fig = fig_input
     else:
-        selected_trace = traces[hairidx]
+        selected_trace = traces[hairidx][0]
         fig.add_trace(selected_trace)
 
     fig.update_yaxes(visible=False)
@@ -188,7 +189,6 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                     st.session_state[tracesKey] = traces
                     st.session_state[hairIdxKey] = 0
                     st.session_state[selectedImagesKey] = fig
-
             
 
     if st.session_state[tracesKey] is not None:
@@ -202,21 +202,26 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                 if st.session_state[hairIdxKey] < 0:
                     st.session_state[hairIdxKey] = len(st.session_state[tracesKey]) - 1
 
-                # st.session_state[selectedImagesKey] = st.session_state[imageListKey][st.session_state[hairIdxKey]]
                 st.session_state[selectedImagesKey] = selectImage(
-                    image_gray = st.session_state.imageGrayKey,
-                    fig_input = st.session_state.figKey,
-                    hairidx= st.session_state.hairIdxKey,
-                    traces= st.session_state.tracesKey)
+                    image_gray = st.session_state[imageGrayKey],
+                    fig_input = st.session_state[figKey],
+                    hairidx= st.session_state[hairIdxKey],
+                    traces= st.session_state[tracesKey]
+                    )
                 
         with colu5:
             if st.button('→', key= forwardArrowKey):
                 st.session_state[hairIdxKey] += 1
 
-                if st.session_state[hairIdxKey] >= len(st.session_state[imageListKey]):
+                if st.session_state[hairIdxKey] >= len(st.session_state[tracesKey]):
                     st.session_state[hairIdxKey] = 0
 
-                st.session_state[selectedImagesKey] = st.session_state[imageListKey][st.session_state[hairIdxKey]]
+                st.session_state[selectedImagesKey] = selectImage(
+                    image_gray = st.session_state[imageGrayKey],
+                    fig_input = st.session_state[figKey],
+                    hairidx= st.session_state[hairIdxKey],
+                    traces= st.session_state[tracesKey]
+                    )
 
         if st.session_state[selectedImagesKey] is not None:
             
