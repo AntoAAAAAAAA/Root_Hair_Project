@@ -123,7 +123,7 @@ def selectImage(image_gray, fig_input, hairidx, traces: list):
     if hairidx == 0:
         fig = fig_input
     else:
-        selected_trace = traces[hairidx][0]
+        selected_trace = traces[hairidx - 1][0]
         fig.add_trace(selected_trace)
 
     fig.update_yaxes(visible=False)
@@ -200,7 +200,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                 st.session_state[hairIdxKey] -= 1
 
                 if st.session_state[hairIdxKey] < 0:
-                    st.session_state[hairIdxKey] = len(st.session_state[tracesKey]) - 1
+                    st.session_state[hairIdxKey] = len(st.session_state[tracesKey])
 
                 st.session_state[selectedImagesKey] = selectImage(
                     image_gray = st.session_state[imageGrayKey],
@@ -213,7 +213,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
             if st.button('→', key= forwardArrowKey):
                 st.session_state[hairIdxKey] += 1
 
-                if st.session_state[hairIdxKey] >= len(st.session_state[tracesKey]):
+                if st.session_state[hairIdxKey] > len(st.session_state[tracesKey]):
                     st.session_state[hairIdxKey] = 0
 
                 st.session_state[selectedImagesKey] = selectImage(

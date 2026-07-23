@@ -202,7 +202,7 @@ def summarizeSessionState(label):
 def loadSamModel():
     print(
         "\n[SAM] Cache miss: "
-        "constructing sam2_b.pt",
+        "constructing sam2_l.pt",
         flush=True
     )
 
@@ -211,7 +211,7 @@ def loadSamModel():
     )
 
     model = SAM(
-        "sam2_b.pt"
+        "sam2_l.pt"
     )
 
     logMemoryChange(
@@ -370,7 +370,23 @@ with column2:
 
 col1, col2 = st.columns(2)
 
+def selectImage(image_gray, fig_input, hairidx, traces: list):
+    fig = px.imshow(image_gray, binary_string=True)
 
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+    fig.data[0].hovertemplate = None
+    fig.data[0].hoverinfo = "skip"
+
+    if hairidx == 0:
+        fig = fig_input
+    else:
+        selected_trace = traces[hairidx - 1][0]
+        fig.add_trace(selected_trace)
+
+    fig.update_yaxes(visible=False)
+    fig.update_xaxes(visible=False)
+
+    return fig 
 def column(
     uploadKey,
     imageGrayKey,
@@ -784,177 +800,29 @@ def column(
                         before_session_assignment
                     )
 
-
-                    ### -----Construct individual figures--------
-
-                    image_list_memory_start = (
-                        showMemory(
-                            debugContainer,
-                            f"{T}: Before building image_list"
-                        )
-                    )
-
-
-                    image_list_time_start = (
-                        time.perf_counter()
-                    )
-
-
-                    image_list = [
-                        fig
-                    ]
-
-
-                    debugContainer.write(
-                        f"**Individual Plotly figures "
-                        f"to construct:** "
-                        f"`{len(traces)}`"
-                    )
-
-
-                    for trace_index, (
-                        trace,
-                        length
-                    ) in enumerate(
-                        traces,
-                        start=1
-                    ):
-                        figure_memory_start = (
-                            getMemoryGB()
-                        )
-
-
-                        base_image = px.imshow(
-                            image_gray,
-                            binary_string=True
-                        )
-
-
-                        base_image.update_layout(
-                            margin=dict(
-                                l=0,
-                                r=0,
-                                t=0,
-                                b=0
-                            )
-                        )
-
-
-                        base_image.data[
-                            0
-                        ].hovertemplate = None
-
-                        base_image.data[
-                            0
-                        ].hoverinfo = "skip"
-
-
-                        base_image.add_trace(
-                            trace
-                        )
-
-
-                        base_image.update_yaxes(
-                            visible=False
-                        )
-
-                        base_image.update_xaxes(
-                            visible=False
-                        )
-
-
-                        image_list.append(
-                            base_image
-                        )
-
-
-                        figure_memory_end = (
-                            getMemoryGB()
-                        )
-
-
-                        if (
-                            trace_index == 1
-                            or trace_index % 5 == 0
-                            or trace_index
-                            == len(traces)
-                        ):
-                            debugContainer.write(
-                                f"Built figure "
-                                f"`{trace_index}/{len(traces)}` — "
-                                f"length: `{length:.2f} µm`, "
-                                f"RSS: "
-                                f"`{figure_memory_end:.3f} GB`, "
-                                f"figure change: "
-                                f"`{figure_memory_end - figure_memory_start:+.3f} GB`"
-                            )
-
-
-                        print(
-                            f"[PLOTLY] {T}: "
-                            f"figure "
-                            f"{trace_index}/{len(traces)}, "
-                            f"length={length:.2f} µm, "
-                            f"memory change="
-                            f"{figure_memory_end - figure_memory_start:+.3f} GB, "
-                            f"RSS={figure_memory_end:.3f} GB",
-                            flush=True
-                        )
-
-
-                    image_list_elapsed = (
-                        time.perf_counter()
-                        - image_list_time_start
-                    )
-
-
-                    showMemory(
-                        debugContainer,
-                        f"{T}: After building image_list",
-                        image_list_memory_start
-                    )
-
-
-                    debugContainer.write(
-                        f"**`image_list` construction time:** "
-                        f"`{image_list_elapsed:.2f} seconds`"
-                    )
-
-                    debugContainer.write(
-                        f"**Figures retained in `image_list`:** "
-                        f"`{len(image_list)}`"
-                    )
-
-
                     ### -----Store image list--------
 
-                    before_image_list_assignment = (
+                    before_selected_figure_assignment = (
                         showMemory(
                             debugContainer,
-                            f"{T}: Before storing image_list "
+                            f"{T}: Before storing selected figure "
                             f"in session state"
                         )
                     )
-
-
-                    st.session_state[
-                        imageListKey
-                    ] = image_list
-
                     st.session_state[
                         hairIdxKey
                     ] = 0
 
                     st.session_state[
                         selectedImagesKey
-                    ] = image_list[0]
+                    ] = fig
 
 
                     showMemory(
                         debugContainer,
                         f"{T}: After storing image_list "
                         f"in session state",
-                        before_image_list_assignment
+                        before_selected_figure_assignment
                     )
 
 
@@ -986,7 +854,7 @@ def column(
 
     if (
         st.session_state[
-            imageListKey
+            tracesKey
         ]
         is not None
     ):
@@ -999,83 +867,33 @@ def column(
 
 
         with colu1:
-            if st.button(
-                "←",
-                key=previousArrowKey
-            ):
-                st.session_state[
-                    hairIdxKey
-                ] -= 1
-
-
-                if (
-                    st.session_state[
-                        hairIdxKey
-                    ]
-                    < 0
-                ):
-                    st.session_state[
-                        hairIdxKey
-                    ] = (
-                        len(
-                            st.session_state[
-                                imageListKey
-                            ]
-                        )
-                        - 1
-                    )
-
-
-                st.session_state[
-                    selectedImagesKey
-                ] = (
-                    st.session_state[
-                        imageListKey
-                    ][
-                        st.session_state[
-                            hairIdxKey
-                        ]
-                    ]
-                )
+                    if st.button('←', key= previousArrowKey):
+                        st.session_state[hairIdxKey] -= 1
+        
+                        if st.session_state[hairIdxKey] < 0:
+                            st.session_state[hairIdxKey] = len(st.session_state[tracesKey])
+        
+                        st.session_state[selectedImagesKey] = selectImage(
+                            image_gray = st.session_state[imageGrayKey],
+                            fig_input = st.session_state[figKey],
+                            hairidx= st.session_state[hairIdxKey],
+                            traces= st.session_state[tracesKey]
+                            )
 
 
         with colu5:
-            if st.button(
-                "→",
-                key=forwardArrowKey
-            ):
-                st.session_state[
-                    hairIdxKey
-                ] += 1
-
-
-                if (
-                    st.session_state[
-                        hairIdxKey
-                    ]
-                    >= len(
-                        st.session_state[
-                            imageListKey
-                        ]
-                    )
-                ):
-                    st.session_state[
-                        hairIdxKey
-                    ] = 0
-
-
-                st.session_state[
-                    selectedImagesKey
-                ] = (
-                    st.session_state[
-                        imageListKey
-                    ][
-                        st.session_state[
-                            hairIdxKey
-                        ]
-                    ]
-                )
-
+                    if st.button('→', key= forwardArrowKey):
+                        st.session_state[hairIdxKey] += 1
+        
+                        if st.session_state[hairIdxKey] > len(st.session_state[tracesKey]):
+                            st.session_state[hairIdxKey] = 0
+        
+                        st.session_state[selectedImagesKey] = selectImage(
+                            image_gray = st.session_state[imageGrayKey],
+                            fig_input = st.session_state[figKey],
+                            hairidx= st.session_state[hairIdxKey],
+                            traces= st.session_state[tracesKey]
+                            )
 
         if (
             st.session_state[
