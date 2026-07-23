@@ -15,7 +15,7 @@ from src.main_v2 import *
 
 @st.cache_resource(show_spinner=False, show_time=False)
 def loadSamModel():
-    return SAM("sam2_b.pt")
+    return SAM("sam2_l.pt")
 
 model = loadSamModel()
 
@@ -112,6 +112,24 @@ with column2:
 
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
+def selectImage(image_gray, fig_input, hairidx, traces: list):
+    fig = px.imshow(image_gray, binary_string=True)
+
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+    fig.data[0].hovertemplate = None
+    fig.data[0].hoverinfo = "skip"
+
+    if hairidx == 0:
+        fig = fig_input
+    else:
+        selected_trace = traces[hairidx]
+        fig.add_trace(selected_trace)
+
+    fig.update_yaxes(visible=False)
+    fig.update_xaxes(visible=False)
+
+    return fig 
+
 def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
            figKey, imageListKey, hairIdxKey, selectedImagesKey, previousArrowKey, 
            forwardArrowKey, plotlyKey, colListKey, addToTableKey, T):
@@ -152,30 +170,28 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                     fig, traces = results['fig'], results['traces']
                     st.session_state[tracesKey] = traces
                     st.session_state[figKey] = fig
+                    
 
-                    image_list = []
-                    image_list.insert(0, fig)
-
-                    for trace, length in traces:
-                        base_image = px.imshow(image_gray, binary_string=True)
-                        base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+                    # for trace, length in traces:
+                    #     base_image = px.imshow(image_gray, binary_string=True)
+                    #     base_image.update_layout(margin=dict(l=0, r=0, t=0, b=0))
                         
-                        base_image.data[0].hovertemplate = None
-                        base_image.data[0].hoverinfo = "skip"
+                    #     base_image.data[0].hovertemplate = None
+                    #     base_image.data[0].hoverinfo = "skip"
 
-                        base_image.add_trace(trace)
-                        base_image.update_yaxes(visible=False)
-                        base_image.update_xaxes(visible=False)
+                    #     base_image.add_trace(trace)
+                    #     base_image.update_yaxes(visible=False)
+                    #     base_image.update_xaxes(visible=False)
 
-                        image_list.append(base_image)
+                    #     image_list.append(base_image)
 
-                    st.session_state[imageListKey] = image_list
+                    st.session_state[tracesKey] = traces
                     st.session_state[hairIdxKey] = 0
-                    st.session_state[selectedImagesKey] = image_list[0]
+                    st.session_state[selectedImagesKey] = fig
 
             
 
-    if st.session_state[imageListKey] is not None:
+    if st.session_state[tracesKey] is not None:
         st.divider()
         colu1, colu2, colu3, colu4, colu5 = st.columns(5)
         
@@ -184,10 +200,15 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                 st.session_state[hairIdxKey] -= 1
 
                 if st.session_state[hairIdxKey] < 0:
-                    st.session_state[hairIdxKey] = len(st.session_state[imageListKey]) - 1
+                    st.session_state[hairIdxKey] = len(st.session_state[tracesKey]) - 1
 
-                st.session_state[selectedImagesKey] = st.session_state[imageListKey][st.session_state[hairIdxKey]]
-            
+                # st.session_state[selectedImagesKey] = st.session_state[imageListKey][st.session_state[hairIdxKey]]
+                st.session_state[selectedImagesKey] = selectImage(
+                    image_gray = st.session_state.imageGrayKey,
+                    fig_input = st.session_state.figKey,
+                    hairidx= st.session_state.hairIdxKey,
+                    traces= st.session_state.tracesKey)
+                
         with colu5:
             if st.button('→', key= forwardArrowKey):
                 st.session_state[hairIdxKey] += 1
