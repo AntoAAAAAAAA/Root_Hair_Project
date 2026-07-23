@@ -12,6 +12,48 @@ from ultralytics import SAM
 
 from src.main_v2 import *
 
+# TESTING
+import os
+import psutil
+
+PROCESS = psutil.Process(os.getpid())
+
+
+def logMemory(stage):
+    rss_gb = PROCESS.memory_info().rss / (1024 ** 3)
+    print(f"{stage}: {rss_gb:.3f} GB RSS", flush=True)
+
+
+logMemory("Python process started")
+
+import streamlit as st
+logMemory("After importing Streamlit")
+
+import numpy as np
+logMemory("After importing NumPy")
+
+import pandas as pd
+logMemory("After importing pandas")
+
+import cv2
+logMemory("After importing OpenCV")
+
+import scipy
+logMemory("After importing SciPy")
+
+import skimage
+logMemory("After importing scikit-image")
+
+import plotly.express as px
+logMemory("After importing Plotly")
+
+from ultralytics import SAM
+logMemory("After importing Ultralytics SAM")
+
+from src.main_v2 import *
+logMemory("After importing main_v2")
+# TESTING
+
 
 ### -----Memory diagnostic helpers--------
 
