@@ -113,17 +113,18 @@ with column2:
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
 
-def selectImage(image_gray, fig_input, hairidx, traces: list):
+def selectImage(image_gray, fig_input, display_idx, traces: list):
     fig = px.imshow(image_gray, binary_string=True)
 
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
     fig.data[0].hovertemplate = None
     fig.data[0].hoverinfo = "skip"
 
-    if hairidx == 0:
+    if display_idx == 0:
         fig = fig_input
     else:
-        selected_trace = traces[hairidx - 1][0]
+        trace_idx = display_idx - 1
+        selected_trace = traces[trace_idx][0]
         fig.add_trace(selected_trace)
 
     fig.update_yaxes(visible=False)
@@ -132,7 +133,7 @@ def selectImage(image_gray, fig_input, hairidx, traces: list):
     return fig 
 
 def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
-           figKey, imageListKey, hairIdxKey, selectedImagesKey, previousArrowKey, 
+           figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
            forwardArrowKey, plotlyKey, colListKey, addToTableKey, T):
     
     uploaded_file = st.file_uploader(
@@ -187,7 +188,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                     #     image_list.append(base_image)
 
                     st.session_state[tracesKey] = traces
-                    st.session_state[hairIdxKey] = 0
+                    st.session_state[displayIdxKey] = 0
                     st.session_state[selectedImagesKey] = fig
             
 
@@ -197,29 +198,29 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
         
         with colu1:
             if st.button('←', key= previousArrowKey):
-                st.session_state[hairIdxKey] -= 1
+                st.session_state[displayIdxKey] -= 1
 
-                if st.session_state[hairIdxKey] < 0:
-                    st.session_state[hairIdxKey] = len(st.session_state[tracesKey])
+                if st.session_state[displayIdxKey] < 0:
+                    st.session_state[displayIdxKey] = len(st.session_state[tracesKey])
 
                 st.session_state[selectedImagesKey] = selectImage(
                     image_gray = st.session_state[imageGrayKey],
                     fig_input = st.session_state[figKey],
-                    hairidx= st.session_state[hairIdxKey],
+                    display_idx= st.session_state[displayIdxKey],
                     traces= st.session_state[tracesKey]
                     )
                 
         with colu5:
             if st.button('→', key= forwardArrowKey):
-                st.session_state[hairIdxKey] += 1
+                st.session_state[displayIdxKey] += 1
 
-                if st.session_state[hairIdxKey] > len(st.session_state[tracesKey]):
-                    st.session_state[hairIdxKey] = 0
+                if st.session_state[displayIdxKey] > len(st.session_state[tracesKey]):
+                    st.session_state[displayIdxKey] = 0
 
                 st.session_state[selectedImagesKey] = selectImage(
                     image_gray = st.session_state[imageGrayKey],
                     fig_input = st.session_state[figKey],
-                    hairidx= st.session_state[hairIdxKey],
+                    display_idx= st.session_state[displayIdxKey],
                     traces= st.session_state[tracesKey]
                     )
 
@@ -227,7 +228,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
             
             st.plotly_chart(st.session_state[selectedImagesKey], width='stretch', height='stretch', key=plotlyKey)
             
-            indx = st.session_state[hairIdxKey]
+            indx = st.session_state[displayIdxKey]
             if indx == 0:
                 colol1, colol2, colol3 = st.columns(3, vertical_alignment='center')
                 colol2.text("Displaying all valid root hairs found")
@@ -248,7 +249,7 @@ with col1:
     tracesKey = 'traces1'
     figKey = 'fig1'
     imageListKey = 'image_list1'
-    hairIdxKey = 'hair_index1'
+    displayIdxKey = 'hair_index1'
     selectedImagesKey = 'selected_image1'
     previousArrowKey = 'previous_hair1'
     forwardArrowKey = 'next_hair1'
@@ -257,7 +258,7 @@ with col1:
     colListKey = 'col1_list'
     T = 'T0'
     column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
-           figKey, imageListKey, hairIdxKey, selectedImagesKey, previousArrowKey, 
+           figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
            forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
 
 
@@ -271,7 +272,7 @@ with col2:
     tracesKey = 'traces2'
     figKey = 'fig2'
     imageListKey = 'image_list2'
-    hairIdxKey = 'hair_index2'
+    displayIdxKey = 'hair_index2'
     selectedImagesKey = 'selected_image2'
     previousArrowKey = 'previous_hair2'
     forwardArrowKey = 'next_hair2'
@@ -280,7 +281,7 @@ with col2:
     colListKey = 'col2_list'
     T = 'T1'
     column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
-           figKey, imageListKey, hairIdxKey, selectedImagesKey, previousArrowKey, 
+           figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
            forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
 
 st.divider()
