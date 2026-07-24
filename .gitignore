@@ -16,6 +16,10 @@ dist/
 *.toc
 *.spec.bak
 
+# PyInstaller cache
+*.manifest
+*.warn
+
 # Conda / virtual envs
 .venv/
 venv/
@@ -24,3 +28,9 @@ env/
 # macOS
 .AppleDouble
 .LSOverride
+
+# pytest
+.pytest_cache/
+
+*.pkg
+*.pyz
