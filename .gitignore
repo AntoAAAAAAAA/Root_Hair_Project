@@ -1,8 +1,39 @@
 __pycache__/
 *.pyc
+*.pyo
+
 .vscode/
 .DS_Store
 .ipynb_checkpoints/
+
 archive/
 BE-IN-TESTING-BRANCH-FOR-TESTS.py
 testing.ipynb
+
+# PyInstaller
+build/
+dist/
+*.toc
+*.spec.bak
+
+# PyInstaller cache
+*.manifest
+*.warn
+
+# Conda / virtual envs
+.venv/
+venv/
+env/
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# pytest
+.pytest_cache/
+
+*.pkg
+*.pyz
+
+# Streamlit agent skills (environment-specific symlinks)
+.agents/skills/developing-with-streamlit
