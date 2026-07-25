@@ -10,6 +10,9 @@ import streamlit as st
 import plotly.express as px
 from ultralytics import SAM
 from src.main_v2 import *
+import json
+from platformdirs import user_data_dir
+
 
 ### -----Session State Initiations--------
 
@@ -32,14 +35,10 @@ if 'traces1' not in st.session_state:
     st.session_state['traces1'] = None
 if 'hair_index1' not in st.session_state:
     st.session_state['hair_index1'] = 0
-if 'image_list1' not in st.session_state:
-    st.session_state['image_list1'] = None
 if 'selected_image1' not in st.session_state:
     st.session_state['selected_image1'] = None
 if 'length1' not in st.session_state:
     st.session_state['length1'] = None
-if 'col1_list' not in st.session_state:
-    st.session_state['col1_list'] = []
 
 
 if 'image_gray2' not in st.session_state:
@@ -52,14 +51,33 @@ if 'traces2' not in st.session_state:
     st.session_state['traces2'] = None
 if 'hair_index2' not in st.session_state:
     st.session_state['hair_index2'] = 0
-if 'image_list2' not in st.session_state:
-    st.session_state['image_list2'] = None
 if 'selected_image2' not in st.session_state:
     st.session_state['selected_image2'] = None
 if 'length2' not in st.session_state:
     st.session_state['length2'] = None
+
+
+app_data_dir = Path(
+    user_data_dir(
+        appname="Root Hair Analyzer",
+        appauthor=False
+    ))
+app_data_dir.mkdir(parents=True, exist_ok=True)
+data_file = app_data_dir / "data.json"
+if not data_file.exists():
+    default_data = {
+        "col1": [],
+        "col2": []
+    }
+    with open(data_file, "w", encoding="utf-8") as file:
+        json.dump(default_data, file, indent=2)
+
+with open(data_file, 'r') as file:
+    col_dict = json.load(file)
+if 'col1_list' not in st.session_state:
+    st.session_state['col1_list'] = col_dict['col1']
 if 'col2_list' not in st.session_state:
-    st.session_state['col2_list'] = []
+    st.session_state['col2_list'] = col_dict['col2']
 
 
 if 'final_table' not in st.session_state:
@@ -305,6 +323,17 @@ edited_table = st.data_editor(table_df, height=250, hide_index=True, num_rows='d
 
 st.session_state['col1_list'] = (pd.to_numeric(edited_table["T0 Measurements (μm)"], errors="coerce").dropna().tolist())
 st.session_state['col2_list'] = (pd.to_numeric(edited_table["T1 Measurements (μm)"], errors="coerce").dropna().tolist())
+
+
+#### -----JSON File Updates--------
+with open(data_file, 'r') as file:
+    data = json.load(file)
+data['col1'] = st.session_state['col1_list']
+data['col2'] = st.session_state['col2_list']
+
+with open(data_file, 'w') as file:
+    json.dump(data, file, indent=2)
+
 
 ### -----Remove Entries from Table--------
 
