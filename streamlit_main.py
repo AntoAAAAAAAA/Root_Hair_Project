@@ -18,7 +18,7 @@ from platformdirs import user_data_dir
 
 @st.cache_resource(show_spinner=False, show_time=False)
 def loadSamModel():
-    return SAM("sam2_b.pt")
+    return SAM("sam2_l.pt")
 
 model = loadSamModel()
 
