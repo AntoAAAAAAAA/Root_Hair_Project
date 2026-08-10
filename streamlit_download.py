@@ -12,8 +12,7 @@ with col1.expander("MacOS", expanded=False):
     st.link_button('Download App', "https://drive.google.com/file/d/1KbLhJGJvmK7tSITIEX0bBLjokr3tuENp/view?usp=drive_link")
 
 with col2.expander("Windows", expanded=False):
-    st.text("A Windows version of the app is currently in development. " \
-    "Please check back in the future once development is complete. Thank you!  ")       
+    st.link_button("Download App", "https://drive.google.com/file/d/1NDwXAlnzh46FtQ2uY8OScqctWICAHZ-m/view?usp=drive_link")     
 
 st.text(" ")
 
