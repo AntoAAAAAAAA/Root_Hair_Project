@@ -1,11 +1,13 @@
 import streamlit as st
 
-
-instr = st.Page("streamlit_instr.py", title="Instructions", default=True)
+download = st.Page("streamlit_download.py", title='Home', default=True)
+instr = st.Page("streamlit_instr.py", title="Instructions")
 main_page = st.Page("streamlit_main.py", title="Root Hair Analyzer")
 
-pg = st.navigation([instr, main_page])
+pg = st.navigation([download, instr, main_page])
 
+if pg == download:
+    current_layout = 'centered'
 if pg == instr:
     current_layout = 'centered'
 if pg == main_page:
