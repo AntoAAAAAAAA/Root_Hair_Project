@@ -1,7 +1,7 @@
 import streamlit as st
 
 instr = st.Page("streamlit_instr.py", title="Instructions")
-main_page = st.Page("streamlit_main.py", title="Demo")
+main_page = st.Page("streamlit_main.py", title="Root Hair Analyzer")
 
 pg = st.navigation([instr, main_page])
 
