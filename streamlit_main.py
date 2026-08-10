@@ -87,6 +87,10 @@ if 'final_table' not in st.session_state:
 ### -----Title--------
 
 st.title('Root Hair Analyzer')
+st.error("Please note that this demo is NOT as accurate or effective as the downloadable version of " \
+"the app. Therefore, please expect that this version is at a much higher risk of crashing due to memory " \
+"issues within this website. For optimal performance and accuracy, please use the downloadable version of" \
+" the app that can be found in the Home page.")
 st.divider()
 
 left, middle, right = st.columns(3)
