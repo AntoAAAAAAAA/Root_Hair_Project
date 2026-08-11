@@ -212,10 +212,10 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
 
     if st.session_state[tracesKey] is not None:
         st.divider()
-        colu1, colu2, colu3, colu4, colu5 = st.columns(5)
+        colu1, colu2, colu3 = st.columns([1,3,1], gap='xxlarge')
         
         with colu1:
-            if st.button('←', key= previousArrowKey):
+            if st.button('←', key= previousArrowKey, width='stretch'):
                 st.session_state[displayIdxKey] -= 1
 
                 if st.session_state[displayIdxKey] < 0:
@@ -228,8 +228,8 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                     traces= st.session_state[tracesKey]
                     )
                 
-        with colu5:
-            if st.button('→', key= forwardArrowKey):
+        with colu3:
+            if st.button('→', key= forwardArrowKey, width='stretch'):
                 st.session_state[displayIdxKey] += 1
 
                 if st.session_state[displayIdxKey] > len(st.session_state[tracesKey]):
@@ -252,8 +252,8 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                 colol2.text("Displaying all valid root hairs found")
             else:
                 length = st.session_state[tracesKey][indx-1][1]
-                colu3.text(f'Length: {length:.2f} µm')
-                if colu3.button("Add to Table", key = addToTableKey):
+                colu2.text(f'Length: {length:.2f} µm', text_alignment='center', width='stretch')
+                if colu2.button("Add to Table", key = addToTableKey, width='stretch'):
                     st.session_state[colListKey].append(length)
                     st.toast(f'{length:.2f} added to {T}', icon='➕')
 
