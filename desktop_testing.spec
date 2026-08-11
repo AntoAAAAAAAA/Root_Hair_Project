@@ -103,6 +103,7 @@ allHiddenImports = list(
             "ultralytics",
             "ultralytics.models",
             "ultralytics.models.sam",
+            "platformdirs",
         ]
     )
 )
