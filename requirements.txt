@@ -17,3 +17,4 @@ opencv-python-headless==5.0.0.93
 matplotlib==3.11.1
 ultralytics==8.4.104
 psutil==7.2.2
+platformdirs
