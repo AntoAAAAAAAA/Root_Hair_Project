@@ -18,7 +18,7 @@ from src.hybrid_ML import *
 # from hybrid_ML import *
 
 # Note: Always include image_gray as an input for mains. Streamlit is weird with grayscale conversion, so this is necessary
-def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model):
+def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model, threshold):
     '''
     Returns:
         tuple:
@@ -36,7 +36,7 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
     print("=" * 50)
 
     # Find main root and create root hair mask 
-    sam_mask_grayscale, root_hair_mask  = hybrid_main2(image, image_gray, model)
+    sam_mask_grayscale, root_hair_mask, main_thresh, core_thresh, core  = hybrid_main2(image, image_gray, model, threshold)
 
     # Analyze individual root hairs and filter valid ones
     print('\n')
@@ -59,11 +59,14 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
     return {
         "fig": fig,
         "traces": traces,
-        # # The below are commented out for memory efficiency
+        # # # The below are commented out for memory efficiency
         # "root_hair_mask": root_hair_mask,
         # "valid_root_hair_masks": valid_root_hair_masks,
-        # 'contours': contours
-        
+        # 'contours': contours,
+        # 'sam_mask_grayscale': sam_mask_grayscale,
+        # 'main_thresh': main_thresh, 
+        # 'core_thresh': core_thresh,
+        # 'core': core
     }
 
 
@@ -86,27 +89,49 @@ if __name__ == "__main__":
 
     '''Testing: To find root_hair mask of one image with its path.'''
     '''134-149'''
-    image_path = '/Users/antoantony/Root_hair_hybrid_tests/root_hair_150/images/predict/147.bmp'
-    image = cv2.imread(str(image_path))
-    image_gray = makeGrayscaleImage(image_path)
-    model = SAM('sam2_l.pt') 
+    # image_path = '/Users/antoantony/Downloads/drive-download-20260908T003147Z-1-001/wt_200uM_ATPyS_t0_1.bmp'
+    # image = cv2.imread(str(image_path))
+    # image_gray = makeGrayscaleImage(image_path)
+    # model = SAM('sam2_l.pt') 
 
-    results_dict = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
-                  upper=300.0, lower=10.0, model=model)
-    fig = results_dict['fig']
-    root_hair_mask = results_dict['root_hair_mask']
-    valid_root_hair_masks = results_dict['valid_root_hair_masks']
-    contours = results_dict['contours']
+    # results_dict = main_v2(image, image_gray, microscope_conversion_factor=3.393626769, 
+    #               upper=300.0, lower=3.0, model=model, threshold = 140)
+    # fig = results_dict['fig']
+    # root_hair_mask = results_dict['root_hair_mask']
+    # valid_root_hair_masks = results_dict['valid_root_hair_masks']
+    # contours = results_dict['contours']
+    # main_root = results_dict['sam_mask_grayscale']
+    # main_thresh = results_dict['main_thresh']
+    # core_thresh = results_dict['core_thresh']
+    # core = results_dict['core']
 
-    fig.show(renderer='browser')
+
+    # fig.show(renderer='browser')
     
-    figure, ax = plt.subplots(1,2, figsize=(20,10))
-    ax[0].imshow(image_gray, cmap='gray')
-    ax[0].set_title('Original Grayscale Image')
-    ax[0].axis('off')
-    ax[1].imshow(root_hair_mask, cmap='gray')
-    ax[1].set_title('Root Hair Mask')
-    ax[1].axis('off')
-  
-    plt.tight_layout()
-    plt.show()    
+    # figure, ax = plt.subplots(2,3, figsize=(15,10))
+    # ax = ax.flatten()
+    # ax[0].imshow(root_hair_mask, cmap='gray')
+    # ax[0].set_title('Root Hair Mask')
+    # ax[0].axis('off')
+
+    # ax[1].imshow(main_thresh, cmap= 'gray')
+    # ax[1].set_title('main_thresh')
+    # ax[1].axis('off')
+
+    # # overlay = makeFinalMaskWithFinalRootHairs(image_gray, valid_root_hair_masks)
+    # ax[2].imshow(core_thresh, cmap='gray')
+    # ax[2].set_title('core_thresh')
+    # ax[2].axis('off')
+
+    # ax[3].imshow(core, cmap='gray')
+    # ax[3].set_title('Core (distance transform)')
+    # ax[3].axis('off')
+
+    # ax[4].imshow(main_root, cmap='gray')
+    # ax[4].set_title('main_root')
+    # ax[4].axis('off')
+
+    # ax[5].axis('off')
+
+    # plt.tight_layout()
+    # plt.show()    
