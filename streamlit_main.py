@@ -128,6 +128,9 @@ with column2:
         format='%.1f',
         value= 30.0)
 
+## -----Setting of Threshold --------
+threshold_input = column1.slider('Select an analysis value:', 0, 255, value= int(160), key='threshold1', persist_state= 'session')
+
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
 
@@ -150,9 +153,10 @@ def selectImage(image_gray, fig_input, display_idx, traces: list):
 
     return fig 
 
+
 def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
            figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
-           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T):
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T, threshold):
     
     uploaded_file = st.file_uploader(
         "Upload an image",
@@ -186,7 +190,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                     image_gray = st.session_state[imageGrayKey]
                     image_color = st.session_state[imageColorKey]
 
-                    results = main_v2(image_color, image_gray, microscope_conversion_factor, upper, lower, model)
+                    results = main_v2(image_color, image_gray, microscope_conversion_factor, upper, lower, model, threshold)
                     fig, traces = results['fig'], results['traces']
                     st.session_state[tracesKey] = traces
                     st.session_state[figKey] = fig
@@ -275,9 +279,11 @@ with col1:
     plotlyKey = 'plotly1'
     colListKey = 'col1_list'
     T = 'T0'
+    threshold = threshold_input
+
     column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
            figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
-           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T, threshold)
 
 
 with col2:
@@ -298,9 +304,11 @@ with col2:
     plotlyKey = 'plotly2'
     colListKey = 'col2_list'
     T = 'T1'
+    threshold = threshold_input
+
     column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
            figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
-           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T, threshold)
 
 st.divider()
 

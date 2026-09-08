@@ -173,7 +173,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
                 if len(length_per_branch.keys()) == 3 and short_branches < 1:
                     valid_branches = False  
                     break
-        
+    
         if not valid_branches:
             continue 
 
@@ -207,14 +207,14 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
 
         valid_root_hair_masks.append({
             'id': i,
-            # 'mask': root_hair_mask,
+            'mask': root_hair_mask,
             'thicker mask': thicker_mask,
-            # 'cropped_component_mask': cropped_component_mask,
+            'cropped_component_mask': cropped_component_mask,
             'length': length,
             'length in microns': length_in_microns,
         })
 
-        # testing
+        # # testing
         # for mask_dict in valid_root_hair_masks:
         #     cropped_component_mask = mask_dict['cropped_component_mask']
         #     i = mask_dict['id']
