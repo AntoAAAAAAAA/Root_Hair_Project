@@ -119,6 +119,7 @@ with column1:
         step=0.1, 
         format='%.1f',
         value= 100.0)
+    st.text(' ')     
 
 with column2:
     lower = st.number_input(
@@ -128,8 +129,9 @@ with column2:
         format='%.1f',
         value= 30.0)
 
-## -----Setting of Threshold --------
-threshold_input = column1.slider('Select an analysis value:', 0, 255, value= int(160), key='threshold1', persist_state= 'session')
+## -----Threshold Input--------
+threshold_input = column1.slider('Select a threshold value (stable medium is 170):', 80, 255, 
+                                 value= int(160), key='threshold1', persist_state='session')
 
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
