@@ -40,3 +40,5 @@ env/
 
 RootHairAnalyzer.exe
 RootHairAnalyzer.exe.zip
+
+streamlit_main_testing.py
