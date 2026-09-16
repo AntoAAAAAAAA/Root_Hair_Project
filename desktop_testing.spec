@@ -47,8 +47,7 @@ projectDatas = [
     ("streamlit_main_testing.py", "."),
     ("src", "src"),
     (".streamlit", ".streamlit"),
-    ("sam2_l.pt", "."),
-    ("sam2_b.pt", "."),
+    ("sam2_l.pt", ".")
 ]
 
 
