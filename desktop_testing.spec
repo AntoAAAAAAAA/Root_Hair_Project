@@ -143,7 +143,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="desktop_testing",
+    name="RootHairAnalyzer",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -167,7 +167,7 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name="desktop_testing",
+    name="RootHairAnalyzer",
 )
 
 
@@ -176,7 +176,7 @@ coll = COLLECT(
 # ---------------------------------------------------------
 app = BUNDLE(
     coll,
-    name="desktop_testing.app",
+    name="RootHairAnalyzer.app",
     icon=None,
     bundle_identifier="com.antoantony.roothairanalyzer",
 )
