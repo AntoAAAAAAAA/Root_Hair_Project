@@ -250,7 +250,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
 
         if st.session_state[selectedImagesKey] is not None:
             
-            st.plotly_chart(st.session_state[selectedImagesKey], width='stretch', height='stretch', key=plotlyKey)
+            st.plotly_chart(st.session_state[selectedImagesKey], width='stretch', height='content', key=plotlyKey)
             
             indx = st.session_state[displayIdxKey]
             if indx == 0:
