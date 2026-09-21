@@ -130,8 +130,8 @@ with column2:
         value= 30.0)
 
 ## -----Threshold Input--------
-threshold_input = column1.slider('Select a threshold value (stable medium is 170):', 80, 255, 
-                                 value= int(160), key='threshold1', persist_state='session')
+# threshold_input = column1.slider('Select a threshold value (stable medium is 170):', 80, 255, 
+#                                  value= int(160), key='threshold1', persist_state='session')
 
 ## -----Image upload and analysis per column--------
 col1, col2 = st.columns(2)
@@ -158,7 +158,7 @@ def selectImage(image_gray, fig_input, display_idx, traces: list):
 
 def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
            figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
-           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T, threshold):
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T):
     
     uploaded_file = st.file_uploader(
         "Upload an image",
@@ -281,11 +281,11 @@ with col1:
     plotlyKey = 'plotly1'
     colListKey = 'col1_list'
     T = 'T0'
-    threshold = threshold_input
+    # threshold = threshold_input
 
     column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
            figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
-           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T, threshold)
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
 
 
 with col2:
@@ -306,11 +306,11 @@ with col2:
     plotlyKey = 'plotly2'
     colListKey = 'col2_list'
     T = 'T1'
-    threshold = threshold_input
+    # threshold = threshold_input
 
     column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,
            figKey, imageListKey, displayIdxKey, selectedImagesKey, previousArrowKey, 
-           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T, threshold)
+           forwardArrowKey, plotlyKey, colListKey, addToTableKey, T)
 
 st.divider()
 

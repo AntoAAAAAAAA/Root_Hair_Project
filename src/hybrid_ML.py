@@ -58,7 +58,7 @@ def hybrid_main(image, image_gray):
     
     return sam_core_grayscale, final_subtracted_mask, thresh_mask, binary_mask, core
 
-def hybrid_main2(image, image_gray, model, threshold):
+def hybrid_main2(image, image_gray, model):
     '''This version uses SAM to subtract out the background. The resulting image 
     is then thresholded twice: 1) whole root w/ hairs and 2) core main root only. 
     The core threshold is used to create a bounding rectangle, which is then given to SAM-2 
@@ -96,8 +96,8 @@ def hybrid_main2(image, image_gray, model, threshold):
     print('\n')
     print("[2/5] Thresholding Image...")
     # Thresholding of the overlay image and the grayscale image 
-    _, main_thresh = cv2.threshold(overlay, threshold, 255, cv2.THRESH_BINARY_INV) # old was 180
-    _, core_thresh = cv2.threshold(overlay, threshold, 255, cv2.THRESH_BINARY_INV)
+    _, main_thresh = cv2.threshold(overlay, 180, 255, cv2.THRESH_BINARY_INV) # old was 180
+    _, core_thresh = cv2.threshold(overlay, 135, 255, cv2.THRESH_BINARY_INV)
     print("     Thresholding complete")
 
 
