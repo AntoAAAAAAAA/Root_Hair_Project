@@ -192,7 +192,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                     image_gray = st.session_state[imageGrayKey]
                     image_color = st.session_state[imageColorKey]
 
-                    results = main_v2(image_color, image_gray, microscope_conversion_factor, upper, lower, model, threshold)
+                    results = main_v2(image_color, image_gray, microscope_conversion_factor, upper, lower, model)
                     fig, traces = results['fig'], results['traces']
                     st.session_state[tracesKey] = traces
                     st.session_state[figKey] = fig
