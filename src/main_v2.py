@@ -36,13 +36,13 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
     print("=" * 50)
 
     # Find main root and create root hair mask 
-    sam_mask_grayscale, root_hair_mask, main_thresh, core_thresh, core  = hybrid_main2(image, image_gray, model)
+    sam_core_grayscale, root_hair_mask, main_thresh, core_thresh, core  = hybrid_main2(image, image_gray, model)
 
     # Analyze individual root hairs and filter valid ones
     print('\n')
     print("[4/5] Analyzing individual root hairs...")
     skeletonized_hairs = skeletonizeRootHairMask(root_hair_mask)
-    _ , contours = createContoursAndFill(sam_mask_grayscale)
+    _ , contours = createContoursAndFill(sam_core_grayscale)
     valid_root_hair_masks, _ = makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower)
 
     # Create final visualization (interactive plotly)
@@ -63,7 +63,7 @@ def main_v2(image, image_gray, microscope_conversion_factor, upper, lower, model
         # "root_hair_mask": root_hair_mask,
         # "valid_root_hair_masks": valid_root_hair_masks,
         # 'contours': contours,
-        # 'sam_mask_grayscale': sam_mask_grayscale,
+        # 'sam_core_grayscale': sam_core_grayscale,
         # 'main_thresh': main_thresh, 
         # 'core_thresh': core_thresh,
         # 'core': core
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # root_hair_mask = results_dict['root_hair_mask']
     # valid_root_hair_masks = results_dict['valid_root_hair_masks']
     # contours = results_dict['contours']
-    # main_root = results_dict['sam_mask_grayscale']
+    # main_root = results_dict['sam_core_grayscale']
     # main_thresh = results_dict['main_thresh']
     # core_thresh = results_dict['core_thresh']
     # core = results_dict['core']

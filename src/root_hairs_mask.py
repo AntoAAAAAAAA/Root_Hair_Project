@@ -41,21 +41,33 @@ def findBranchLength(y, x, neighbors, length_per_branch, root_hair_pixel_set,
     return current_length               
 
 def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower):
-    ''''This function takes each component of the skeletonized hair mask and filters valid root hairs. '
+    ''''This function takes each component of the skeletonized root hair mask and filters valid root hairs. '
     The function chooses root hairs based on connectivity to main root, length parameters, the validity of endpoints, 
-    and lack of branching, and measures them.
+    and lack of branching. It also measure them.
 
-    Returns:
-        tuple:
-            valid_root_hair_masks (list[dict]): List of dictionaries describing
-                each valid root hair. Each dictionary contains the component ID,
-                the binary root hair mask, a thicker dilated mask for
-                visualization, the estimated length in pixels, and the estimated
-                length in microns.
-                
-            components_masks (np.ndarray): Labeled connected-component image of
-                the skeletonized root hair mask, where each nonzero integer
-                corresponds to a candidate root hair component.
+        Returns:
+            tuple:
+                valid_root_hair_masks (list[dict]): A list of dictionaries, each representing
+                    a valid root hair that passed the connectivity, branching, length, and
+                    main-root proximity filters. Each dictionary contains:
+
+                    - 'id' (int): Unique connected-component label identifying the root hair.
+                    - 'mask' (np.ndarray): Full-size binary mask of the individual root hair,
+                    where 1 represents root-hair pixels and 0 represents background.
+                    - 'thicker mask' (np.ndarray): Dilated version of the root-hair mask,
+                    used for visualization purposes.
+                    - 'cropped_component_mask' (np.ndarray): Binary mask cropped around
+                    the root hair with a 3-pixel margin, bounded by image dimensions.
+                    - 'length' (float): Estimated root-hair skeleton length in pixels,
+                    calculated using orthogonal and diagonal pixel connections.
+                    - 'length in microns' (float): Estimated root-hair length in microns,
+                    calculated using the microscope conversion factor.
+
+                components_masks (np.ndarray): Full-size integer-labeled array produced
+                    by connected-component analysis of the skeletonized root-hair mask.
+                    Background pixels are labeled 0, while each connected component
+                    receives a unique positive integer label. Includes both accepted
+                    and rejected root-hair candidates.
 
     '''
 

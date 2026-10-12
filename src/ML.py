@@ -65,22 +65,6 @@ def nnUnet(image_gray, predictor):
 
         return np.asarray(segmentation)
 
-def parse_segmentation(segmentation):
-
-    segmentation = np.squeeze(segmentation) # remove the 1 dimension 
-
-    main_root = (segmentation == 1).astype(np.uint8) * 255
-    root_hair = (segmentation == 2).astype(np.uint8) * 255
-
-    cv2.imshow('Window', root_hair)
-    cv2.waitKey(0)
-    # cv2.destroyAllWindows()     
-
-    fig = None
-    trace = None
-
-    return fig, trace
-
 
 ### ----Testing--------
 if __name__ == "__main__":
@@ -89,4 +73,3 @@ if __name__ == "__main__":
 
     predictor = initalize_predictor()
     segmentation = nnUnet(image_gray, predictor)
-    fig, trace = parse_segmentation(segmentation)
