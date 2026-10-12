@@ -1,0 +1,12 @@
+{
+    "channel_names": {
+        "0": "grayscale"
+    },
+    "labels": {
+        "background": 0,
+        "main_root": 1,
+        "root_hair": 2
+    },
+    "numTraining": 100,
+    "file_ending": ".png"
+}
