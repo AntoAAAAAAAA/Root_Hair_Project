@@ -10,6 +10,7 @@ import streamlit as st
 import plotly.express as px
 from ultralytics import SAM
 from src.main_v3 import *
+from src.ML import get_torch_device
 import json
 from platformdirs import user_data_dir
 
@@ -31,12 +32,15 @@ from pathlib import Path
 @st.cache_resource(show_spinner=False, show_time=True)
 def initalize_predictor():
     '''Initializes the nnUnet predictor'''
+
+    device = get_torch_device()
+
     predictor = nnUNetPredictor(
         tile_step_size=0.5,
         use_gaussian=True,
         use_mirroring=True,
         perform_everything_on_device=False,
-        device=torch.device("mps"),
+        device=device,
         verbose=False,
         verbose_preprocessing=False,
         allow_tqdm=False
@@ -52,6 +56,9 @@ def initalize_predictor():
 
     MODEL_DIR = get_resource_path("Compressed_Unet")
     os.environ["nnUNet_extTrainer"] = str(MODEL_DIR)
+
+    if str(MODEL_DIR) not in sys.path:
+        sys.path.insert(0, str(MODEL_DIR))
 
     predictor.initialize_from_trained_model_folder(
     str(MODEL_DIR),

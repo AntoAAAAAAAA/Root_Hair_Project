@@ -1,12 +1,11 @@
+
 # -*- mode: python ; coding: utf-8 -*-
 
 from PyInstaller.utils.hooks import collect_all, copy_metadata
 
 
 # ---------------------------------------------------------
-# Collect Streamlit package files
-# Equivalent to:
-#   --collect-all streamlit
+# Collect Streamlit
 # ---------------------------------------------------------
 streamlitDatas, streamlitBinaries, streamlitHiddenImports = collect_all(
     "streamlit"
@@ -14,30 +13,31 @@ streamlitDatas, streamlitBinaries, streamlitHiddenImports = collect_all(
 
 
 # ---------------------------------------------------------
-# Collect OpenCV package files
-# Equivalent to:
-#   --collect-all cv2
+# Collect OpenCV
 # ---------------------------------------------------------
 cv2Datas, cv2Binaries, cv2HiddenImports = collect_all(
     "cv2"
 )
 
+
 # ---------------------------------------------------------
-# Collect Ultralytics package files
-# Equivalent to:
-#   --collect-all ultralytics
+# Collect Ultralytics / SAM
 # ---------------------------------------------------------
 ultralyticsDatas, ultralyticsBinaries, ultralyticsHiddenImports = collect_all(
     "ultralytics"
 )
 
+
 # ---------------------------------------------------------
-# Data files copied into the packaged application
-#
-# Each tuple is:
-#   ("source location", "destination inside app")
-#
-# This replaces your --add-data options.
+# Collect nnU-Net v2
+# ---------------------------------------------------------
+nnunetDatas, nnunetBinaries, nnunetHiddenImports = collect_all(
+    "nnunetv2"
+)
+
+
+# ---------------------------------------------------------
+# Application data and model weights
 # ---------------------------------------------------------
 projectDatas = [
     ("streamlit_control.py", "."),
@@ -45,63 +45,69 @@ projectDatas = [
     ("streamlit_instr.py", "."),
     ("streamlit_diagnostics.py", "."),
     ("streamlit_main_testing.py", "."),
+
     ("src", "src"),
     (".streamlit", ".streamlit"),
-    ("sam2_l.pt", ".")
+
+    ("sam2_l.pt", "."),
+
+    # Model weights, configuration and custom trainer source
+    ("Compressed_Unet", "Compressed_Unet"),
 ]
 
 
 # ---------------------------------------------------------
 # Package metadata
-# Equivalent to:
-#   --copy-metadata streamlit
-#   --copy-metadata streamlit-desktop-app
 # ---------------------------------------------------------
 metadataDatas = (
     copy_metadata("streamlit")
     + copy_metadata("streamlit-desktop-app")
     + copy_metadata("ultralytics")
+    + copy_metadata("nnunetv2")
 )
 
 
 # ---------------------------------------------------------
-# Combine all collected data
+# Combine data
 # ---------------------------------------------------------
 allDatas = (
     streamlitDatas
     + cv2Datas
     + ultralyticsDatas
+    + nnunetDatas
     + metadataDatas
     + projectDatas
 )
 
 
 # ---------------------------------------------------------
-# Combine package binaries
+# Combine binaries
 # ---------------------------------------------------------
 allBinaries = (
     streamlitBinaries
     + cv2Binaries
     + ultralyticsBinaries
+    + nnunetBinaries
 )
 
 
 # ---------------------------------------------------------
 # Combine hidden imports
-#
-# "cv2" is included explicitly to match:
-#   --hidden-import cv2
 # ---------------------------------------------------------
 allHiddenImports = list(
     dict.fromkeys(
         streamlitHiddenImports
         + cv2HiddenImports
         + ultralyticsHiddenImports
+        + nnunetHiddenImports
         + [
             "cv2",
             "ultralytics",
             "ultralytics.models",
             "ultralytics.models.sam",
+            "nnunetv2",
+            "nnunetv2.inference.predict_from_raw_data",
+            "custom_trainers.nnUNetTrainer_RootHair",
             "platformdirs",
         ]
     )
@@ -109,33 +115,35 @@ allHiddenImports = list(
 
 
 # ---------------------------------------------------------
-# Analyze the launcher and its dependencies
+# Analyze launcher
 # ---------------------------------------------------------
 a = Analysis(
     ["desktop_testing.py"],
-    pathex=[],
+
+    pathex=[".", "Compressed_Unet"],
+
     binaries=allBinaries,
     datas=allDatas,
     hiddenimports=allHiddenImports,
+
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
+
     noarchive=False,
     optimize=0,
 )
 
 
 # ---------------------------------------------------------
-# Store pure Python modules in PyInstaller's PYZ archive
+# PYZ archive
 # ---------------------------------------------------------
 pyz = PYZ(a.pure)
 
 
 # ---------------------------------------------------------
-# Create the executable
-#
-# console=False is the spec-file equivalent of --windowed.
+# Executable
 # ---------------------------------------------------------
 exe = EXE(
     pyz,
@@ -157,7 +165,7 @@ exe = EXE(
 
 
 # ---------------------------------------------------------
-# Build the one-folder application contents
+# One-folder distribution
 # ---------------------------------------------------------
 coll = COLLECT(
     exe,
@@ -171,7 +179,7 @@ coll = COLLECT(
 
 
 # ---------------------------------------------------------
-# Create the macOS .app bundle
+# macOS app bundle
 # ---------------------------------------------------------
 app = BUNDLE(
     coll,

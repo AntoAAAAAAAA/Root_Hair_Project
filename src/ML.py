@@ -2,6 +2,8 @@ from pathlib import Path
 import tempfile
 import cv2
 import numpy as np
+import torch
+import sys
 
 
 def nnUnet(image_gray, predictor):
@@ -28,6 +30,17 @@ def nnUnet(image_gray, predictor):
         segmentation = predictions[0]
 
         return np.asarray(segmentation)
+
+def get_torch_device():
+    """Select the best available PyTorch device."""
+
+    if sys.platform == "darwin" and torch.backends.mps.is_available():
+        return torch.device("mps")
+
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+
+    return torch.device("cpu")
 
 
 ### ----Testing--------
