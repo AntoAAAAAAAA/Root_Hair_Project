@@ -1,44 +1,8 @@
-from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
 from pathlib import Path
-import torch
-import os 
-import sys
 import tempfile
 import cv2
 import numpy as np
 
-
-def initalize_predictor():
-    '''Initializes the nnUnet predictor'''
-    predictor = nnUNetPredictor(
-        tile_step_size=0.5,
-        use_gaussian=True,
-        use_mirroring=True,
-        perform_everything_on_device=False,
-        device=torch.device("mps"),
-        verbose=False,
-        verbose_preprocessing=False,
-        allow_tqdm=False
-    )
-    def get_resource_path(relative_path):
-        if getattr(sys, "frozen", False):
-            base_path = Path(sys._MEIPASS)
-        else:
-            base_path = Path(__file__).resolve().parents[1]
-
-        return base_path / relative_path
-
-
-    MODEL_DIR = get_resource_path("Compressed_Unet")
-    os.environ["nnUNet_extTrainer"] = str(MODEL_DIR)
-
-    predictor.initialize_from_trained_model_folder(
-    str(MODEL_DIR),
-    use_folds=(0,),
-    checkpoint_name="checkpoint_final.pth"
-    )
-
-    return predictor 
 
 def nnUnet(image_gray, predictor):
     '''Runs the input image from Streamlit into the nnUnet ML model'''

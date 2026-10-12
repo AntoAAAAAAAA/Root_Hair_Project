@@ -152,42 +152,42 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
         if endpoints == 1:
             continue
             
-        # Filter root hairs that have branches that are significantly long  
-        valid_branches = True
-        if endpoints > 2:
-            for y, x in branch_coords:
-                length_per_branch = {}
-                for dy, dx in neighbors: 
-                    if (y + dy, x + dx) in root_hair_pixel_set:
-                        # Traverse pixels that make up root hair and recursively find how long the branches are
-                        uniquePixelsTraversed = set()
-                        uniquePixelsTraversed.add((y,x))
-                        branchID = (y+dy, x+dx)
-                        length_per_branch[branchID]= findBranchLength(y+dy, 
-                                                                      x+dx, 
-                                                                      neighbors,
-                                                                      length_per_branch, 
-                                                                      root_hair_pixel_set, 
-                                                                      uniquePixelsTraversed, 
-                                                                      branchID, 
-                                                                      current_length = 0)
+        # # Filter root hairs that have branches that are significantly long  
+        # valid_branches = True
+        # if endpoints > 2:
+        #     for y, x in branch_coords:
+        #         length_per_branch = {}
+        #         for dy, dx in neighbors: 
+        #             if (y + dy, x + dx) in root_hair_pixel_set:
+        #                 # Traverse pixels that make up root hair and recursively find how long the branches are
+        #                 uniquePixelsTraversed = set()
+        #                 uniquePixelsTraversed.add((y,x))
+        #                 branchID = (y+dy, x+dx)
+        #                 length_per_branch[branchID]= findBranchLength(y+dy, 
+        #                                                               x+dx, 
+        #                                                               neighbors,
+        #                                                               length_per_branch, 
+        #                                                               root_hair_pixel_set, 
+        #                                                               uniquePixelsTraversed, 
+        #                                                               branchID, 
+        #                                                               current_length = 0)
 
-                # Find how many short branches there are   
-                short_branches = 0
-                for length in length_per_branch.values():
-                    if length < 5:
-                        short_branches += 1
+        #         # Find how many short branches there are   
+        #         short_branches = 0
+        #         for length in length_per_branch.values():
+        #             if length < 5:
+        #                 short_branches += 1
                 
-                # Filter out root hairs that have significant branching 
-                if len(length_per_branch.keys()) == 4 and short_branches < 2:
-                    valid_branches = False 
-                    break
-                if len(length_per_branch.keys()) == 3 and short_branches < 1:
-                    valid_branches = False  
-                    break
+        #         # Filter out root hairs that have significant branching 
+        #         if len(length_per_branch.keys()) == 4 and short_branches < 2:
+        #             valid_branches = False 
+        #             break
+        #         if len(length_per_branch.keys()) == 3 and short_branches < 1:
+        #             valid_branches = False  
+        #             break
     
-        if not valid_branches:
-            continue 
+        # if not valid_branches:
+        #     continue 
 
         # Calculate the length of the root hair using ortho and diag neighbors
         length = num_ortho_neighbors + (num_diag_neighbors * np.sqrt(2))
@@ -197,20 +197,20 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
         if length_in_microns > upper or length_in_microns < lower: 
             continue
         
-        # Check if root hair is within a reasonable distance to the main root 
-        coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
-        coords_of_endpoints = [(y + y_min, x + x_min) for y,x in coords_of_endpoints]
-        endpoint_near_root = False
-        for y,x in coords_of_endpoints:
-            for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
-                if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
-                    endpoint_near_root = True
-                    break
-            if endpoint_near_root:
-                break
+        # # Check if root hair is within a reasonable distance to the main root 
+        # coords_of_endpoints = [tuple(coords[i]) for i, d in enumerate(list_of_degrees) if d == 1]
+        # coords_of_endpoints = [(y + y_min, x + x_min) for y,x in coords_of_endpoints]
+        # endpoint_near_root = False
+        # for y,x in coords_of_endpoints:
+        #     for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
+        #         if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
+        #             endpoint_near_root = True
+        #             break
+        #     if endpoint_near_root:
+        #         break
         
-        if not endpoint_near_root:
-            continue 
+        # if not endpoint_near_root:
+        #     continue 
         
         # Create a dilated/thicker mask of the root hair (for visualization purposes)
         kernel = np.ones((4,4), np.uint8)
