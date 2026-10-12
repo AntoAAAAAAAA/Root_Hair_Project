@@ -10,10 +10,16 @@ from ultralytics import SAM
 from src.main_root_mask import *
 from src.root_hairs_mask import *
 from src.final_visualize import *
-from src.ML import ML_model
+from src.ML import nnUnet, parse_segmentation
 
-def main_v3(color_image, image_gray, microscope_conversion_factor, upper, lower, model):
+def main_v3(color_image, image_gray, microscope_conversion_factor, upper, lower, predictor):
 
-    fig, traces = ML_model(image_gray, model)
+    segmentation = nnUnet(image_gray, predictor)
 
+    fig, traces = parse_segmentation(segmentation)
+
+    return {
+        'fig': fig,
+        'traces': traces
+    }
     ...
