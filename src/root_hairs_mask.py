@@ -245,6 +245,49 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
     print("     Root hair analysis complete")
     return valid_root_hair_masks, components_masks
 
+def makeValidRootHairAnalysis2(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower):
+    '''Breaks skeleton mask of root hairs into individual root hair masks'''
+
+    # Pull coordinates of main contour 
+
+    # turn root hairs into graph w/ junctions, branches, and endpoints
+    # pull coordinates for junctions (nodes), branches, and endpoints
+
+    
+    ### Create a dictionary for each junction that contains pairs of branches for traversal 
+    # iterate through each node:
+        # create vectors for each branch coming out of node (pair these up)
+        # make a list 
+        # output a list that contains the proper pairings (pair up deadend branches with 'None' or something else)
+        # create a value (identifier) to the dictionary, and add the list as the value
+    
+    ### Traverse the graph using nodes
+    # initiate a list of valid roots ('valid_roots')
+    # initiate a list for creation of individual root ('individual_root') 
+
+    
+    # iterate through a list of endpoints:
+        # initiate set() for 'single root' 
+        # add first branch to 'individual root' 
+        # find connecting junction 
+        # look up junction, use branch pairing to find opposite branch
+        # check that opposite branch isn't in either set()
+            # if not then add to individual root hair list 
+        # add opposite branch to set() and the set outside of the loop 
+        # repeat this process until a 'None" is hit or (i'm not sure, an endpoint? or no junction? one of those)
+            # this seems like a recursive solution (actually, while loop seems better)
+
+        # append the individual root hair list to list for final root hairs
+        # clear individual root hair list 
+    
+    ### Run post-processing filtering through final root hairs list. For each root hair, check:
+        # length (between upper and lower)
+        # distance of endpoint to main root (using contours)
+        # for significantly long branches 
+
+    
+    return ...
+
 def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
     '(Used primarily in testing) This function creates an overlay of the filtered root hairs on top of the original grayscale image.'
 
