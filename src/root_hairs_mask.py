@@ -245,48 +245,197 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
     print("     Root hair analysis complete")
     return valid_root_hair_masks, components_masks
 
+
+
+
+from itertools import combinations
+import networkx as nx
+def pairBranches(vectors):
+    '''
+    Receives vectors from a single node and calculates valid pairings across a junction 
+    using maximum-weight matching. 
+    '''
+    matching_graph = nx.Graph()
+
+    # Each original skeleton edge becomes a node
+    matching_graph.add_nodes_from(vectors)
+
+    for edge_a, edge_b in combinations(vectors, 2):
+
+        vector_a = vectors[edge_a]
+        vector_b = vectors[edge_b]
+
+        cosine = np.clip(
+            np.dot(vector_a, vector_b),
+            -1.0,
+            1.0
+        )
+
+        angle = np.degrees(np.arccos(cosine))
+
+        # Higher angles are better for outward vectors
+        matching_graph.add_edge(
+            edge_a,
+            edge_b,
+            weight=float(angle)
+        )
+
+    matching = nx.max_weight_matching(
+        matching_graph,
+        maxcardinality=True
+    )
+
+    # Bidirectional lookup dictionary
+    pairings = {edge: None for edge in vectors}
+
+    for edge_a, edge_b in matching:
+        pairings[edge_a] = edge_b
+        pairings[edge_b] = edge_a
+
+    return pairings
+
+import sknw
 def makeValidRootHairAnalysis2(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower):
     '''Breaks skeleton mask of root hairs into individual root hair masks'''
 
     # Pull coordinates of main contour 
+    all_contours = np.vstack(contours)
+    coords_of_contours = all_contours.reshape(-1, 2)
+    coords_of_contours = set(map(tuple, coords_of_contours.tolist()))
 
     # turn root hairs into graph w/ junctions, branches, and endpoints
+    graph = sknw.build_sknw(skeletonized_hairs, multi=True, iso=False, ring=False, full=True)
     # pull coordinates for junctions (nodes), branches, and endpoints
+    branch_coords = {(u,v,key): data['pts'] for u, v, key, data in graph.edges(keys=True, data=True)}
+    endpoints_array = {node_id: graph.nodes[node_id]['o'] for node_id, degree in graph.degree() if degree == 1}
+    node_arrays = {node_id: graph.nodes[node_id]['o'] for node_id, degree in graph.degree() if degree >= 3}
 
-    
-    ### Create a dictionary for each junction that contains pairs of branches for traversal 
+    ### Create a dictionary for each junction that contains pairs of branches for traversal
+ 
+    junction_pairings = {}
+
     # iterate through each node:
+    for node_id, node_coord in node_arrays.items(): # node: int, node_coord: (y, x)
+        pass
         # create vectors for each branch coming out of node (pair these up)
-        # make a list 
-        # output a list that contains the proper pairings (pair up deadend branches with 'None' or something else)
-        # create a value (identifier) to the dictionary, and add the list as the value
-    
-    ### Traverse the graph using nodes
-    # initiate a list of valid roots ('valid_roots')
-    # initiate a list for creation of individual root ('individual_root') 
+        vectors = {} # neighbor_id : vector 
+        for u, v, key, data in graph.edges(node_id, keys=True, data=True):
 
-    
+            edge_id = (min(u, v), max(u, v), key) # unique identifier of an edge 
+            pts = data['pts'] #pts: 2D numpy array
+
+            # skip if an edge is basically nonexistent 
+            if len(pts) < 2:
+                continue
+
+            # Determine which end of the branch is near the junction
+            dist_to_start = np.linalg.norm(pts[0] - node_coord)
+            dist_to_end = np.linalg.norm(pts[-1] - node_coord)
+
+            if dist_to_start < dist_to_end:
+                next_pt = pts[min(2, len(pts)-1)] #next_pt: 1D numpy array [y, x]
+            else:
+                next_pt = pts[max(0, len(pts)-3)]
+
+            vector = next_pt - node_coord # vector: 1D numpy array
+
+            norm = np.linalg.norm(vector)
+            if norm == 0: 
+                continue 
+
+            vectors[edge_id] = vector / norm
+
+        # output a dict that contains the proper pairings (pair up deadend branches with 'None' or something else)
+        pairings = pairBranches(vectors)
+
+        # create an identifier to the dictionary, and add the dict of pairings as the value
+        junction_pairings[node_id] = pairings # node_id: {branch1:branch2, branch2:branch1, branch3:branch4, branch4:branch3, branch5:None }
+
+    ### Traverse the graph using nodes
+
+    # initiate a list of valid roots ('valid_roots')
+    valid_roots = []
+    # initiate a list for creation of individual root ('individual_root') 
+    individual_root = []
+
     # iterate through a list of endpoints:
+    for endpoint_id, endpoint_coord in endpoints_array:
         # initiate set() for 'single root' 
-        # add first branch to 'individual root' 
+        singleRoot = set()
+
+        # add endpoint to 'individual root' and set
+        individual_root.append(endpoint_coord)
+        singleRoot.add(endpoint_coord)
+
         # find connecting junction 
+        first_node_id = None
+        for surrounding_nodes_id in graph.neighbors(endpoint_id):
+            first_node_id = surrounding_nodes_id
+        # find connecting branch and add 
+        branch = graph[endpoint_id][first_node_id]
+        individual_root.append(branch)
+        singleRoot.add(branch)
+        # add the node 
+        first_node = graph.nodes[first_node_id]
+        individual_root.append(first_node)
+        singleRoot.add(first_node)
+
+        incoming_branch_id = next((k for k, v in branch_coords.items() if v == branch)) 
+        current_node = first_node
+        current_node_id = first_node_id
+        while True:
+            
         # look up junction, use branch pairing to find opposite branch
+            opposite_branch_id = junction_pairings[current_node_id][incoming_branch_id]
+            if opposite_branch_id == None:
+                break
+            opposite_branch = branch_coords[opposite_branch_id]
+
         # check that opposite branch isn't in either set()
             # if not then add to individual root hair list 
+            if opposite_branch in singleRoot:
+                break
+            else:
+                individual_root.append(opposite_branch)
         # add opposite branch to set() and the set outside of the loop 
+            singleRoot.add(opposite_branch)
+        # find opposite junction 
+            opposite_node_id = None
+            u, v, key = opposite_branch_id
+            if current_node == u:
+                opposite_node_id = v
+            elif current_node == v:
+                opposite_node_id = u
+
+            opposite_node = graph.nodes[opposite_node_id]
+
+            # check that we aren't duplicating branches 
+            if opposite_node in singleRoot:
+                break
+            else:
+                singleRoot.add(opposite_node)
+
+            incoming_branch_id = opposite_branch_id
+            current_node = opposite_node
+            current_node_id = opposite_node_id
         # repeat this process until a 'None" is hit or (i'm not sure, an endpoint? or no junction? one of those)
             # this seems like a recursive solution (actually, while loop seems better)
 
         # append the individual root hair list to list for final root hairs
+        valid_roots.append(individual_root)
         # clear individual root hair list 
+        individual_root.clear()
     
     ### Run post-processing filtering through final root hairs list. For each root hair, check:
         # length (between upper and lower)
         # distance of endpoint to main root (using contours)
         # for significantly long branches 
 
+
+    # # testing
+    # use nx.draw(G) where G is a graph to visualize it 
     
-    return ...
+    return graph
 
 def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
     '(Used primarily in testing) This function creates an overlay of the filtered root hairs on top of the original grayscale image.'
