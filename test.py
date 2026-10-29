@@ -1,4 +1,4 @@
-from src.root_hairs_mask import makeValidRootHairAnalysis2
+from src.root_hairs_mask import extractAndFilterRootHairs
 
 import cv2
 import matplotlib.pyplot as plt
@@ -57,7 +57,7 @@ def initalize_predictor():
 
 if __name__ == '__main__':
 
-    image_path = '/Users/antoantony/Root_Hair_ML/Images/KeptImages/008.png'
+    image_path = '/Users/antoantony/Root_Hair_ML/Images/KeptImages/015.png'
     microscope_conversion_factor = 3.34
     upper = 500
     lower = 3
@@ -76,24 +76,99 @@ if __name__ == '__main__':
 
     ####### TESTING BLOCK ##########
 
+    valid_root_hair_masks, graph = extractAndFilterRootHairs(skeleton_hairs, contours, microscope_conversion_factor, upper, lower)
 
-    graph = makeValidRootHairAnalysis2(skeleton_hairs, contours, microscope_conversion_factor, upper, lower)
-    # sknw.draw_graph(image_gray, graph)
-    plt.figure(figsize=(12, 8))
-    plt.imshow(root_hairs, cmap='gray')
+    ####################################
 
-    # Plot all edges
-    for u, v, key, data in graph.edges(keys=True, data=True):
-        ps = data["pts"]
-        plt.plot(ps[:, 1], ps[:, 0], color="green", linewidth=1)
+    
+        ####### INDIVIDUAL ROOT HAIR DEBUG VISUALIZATIONS #######
 
-    # Plot all nodes
-    ps = np.array([data["o"] for _, data in graph.nodes(data=True)])
+    output_dir = (
+        Path(__file__).resolve().parent
+        / f"root_hair_debug_{Path(image_path).stem}"
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    if len(ps) > 0:
-        plt.plot(ps[:, 1], ps[:, 0], "r.", markersize=5)
+    background = cv2.cvtColor(image_gray, cv2.COLOR_GRAY2RGB)
 
-    plt.title("Skeleton Graph Visualization")
-    plt.savefig("skeleton_graph.png", dpi=200, bbox_inches="tight")
-    plt.close()
+    for i, hair in enumerate(valid_root_hair_masks, start=1):
+
+        thick_mask = hair["thicker mask"] > 0
+
+        # Create overlay for this individual hair only
+        thick_overlay = background.copy()
+        color = np.array([255, 60, 60], dtype=np.uint8)  # red-ish
+        alpha = 0.75
+
+        thick_overlay[thick_mask] = (
+            (1 - alpha) * thick_overlay[thick_mask]
+            + alpha * color
+        ).astype(np.uint8)
+
+        # Create figure
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+
+        # 1. Entire root hair mask
+        axes[0].imshow(root_hairs, cmap="gray")
+        axes[0].set_title("Entire Root Hair Mask")
+
+        # 2. Entire skeleton graph
+        ax = axes[1]
+        ax.imshow(image_gray, cmap="gray", alpha=0.35)
+
+        # Draw all graph branches
+        for u, v, key, data in graph.edges(keys=True, data=True):
+            pts = data["pts"]
+            ax.plot(
+                pts[:, 1], pts[:, 0],
+                color="cyan",
+                linewidth=1.2
+            )
+
+        # Draw all graph nodes
+        for node_id, data in graph.nodes(data=True):
+            y, x = data["o"]
+
+            if graph.degree(node_id) == 1:
+                node_color = "lime"   # endpoints
+            else:
+                node_color = "red"    # degree >= 2 nodes / junction-type nodes
+
+            ax.scatter(
+                x, y,
+                c=node_color,
+                s=12,
+                zorder=3
+            )
+
+        ax.set_title("Skeleton Graph\nGreen = Endpoints | Red = Nodes")
+
+        # 3. Dilated overlay for selected root hair
+        axes[2].imshow(thick_overlay)
+        axes[2].set_title("Dilated Root Hair Overlay")
+
+        for ax in axes:
+            ax.axis("off")
+
+        fig.suptitle(
+            f"Root Hair {i} | ID: {hair['id']} | "
+            f"Length: {hair['length in microns']:.2f} µm",
+            fontsize=14
+        )
+
+        plt.tight_layout()
+
+        fig.savefig(
+            output_dir / f"root_hair_{i:03d}_id_{hair['id']}.png",
+            dpi=150,
+            bbox_inches="tight"
+        )
+
+        plt.close(fig)
+
+    print(
+        f"Saved {len(valid_root_hair_masks)} individual root-hair "
+        f"visualizations to: {output_dir}"
+    )
+
     #################################

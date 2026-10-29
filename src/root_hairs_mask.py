@@ -45,29 +45,29 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
     The function chooses root hairs based on connectivity to main root, length parameters, the validity of endpoints, 
     and lack of branching. It also measures them. Primarily used for main_v2 workflow. 
 
-        Returns:
-            tuple:
-                valid_root_hair_masks (list[dict]): A list of dictionaries, each representing
-                    a valid root hair that passed the connectivity, branching, length, and
-                    main-root proximity filters. Each dictionary contains:
+    Returns:
+        tuple:
+            valid_root_hair_masks (list[dict]): A list of dictionaries, each representing
+                a valid root hair that passed the connectivity, branching, length, and
+                main-root proximity filters. Each dictionary contains:
 
-                    - 'id' (int): Unique connected-component label identifying the root hair.
-                    - 'mask' (np.ndarray): Full-size binary mask of the individual root hair,
-                    where 1 represents root-hair pixels and 0 represents background.
-                    - 'thicker mask' (np.ndarray): Dilated version of the root-hair mask,
-                    used for visualization purposes.
-                    - 'cropped_component_mask' (np.ndarray): Binary mask cropped around
-                    the root hair with a 3-pixel margin, bounded by image dimensions.
-                    - 'length' (float): Estimated root-hair skeleton length in pixels,
-                    calculated using orthogonal and diagonal pixel connections.
-                    - 'length in microns' (float): Estimated root-hair length in microns,
-                    calculated using the microscope conversion factor.
+                - 'id' (int): Unique connected-component label identifying the root hair.
+                - 'mask' (np.ndarray): Full-size binary mask of the individual root hair,
+                where 1 represents root-hair pixels and 0 represents background.
+                - 'thicker mask' (np.ndarray): Dilated version of the root-hair mask,
+                used for visualization purposes.
+                - 'cropped_component_mask' (np.ndarray): Binary mask cropped around
+                the root hair with a 3-pixel margin, bounded by image dimensions.
+                - 'length' (float): Estimated root-hair skeleton length in pixels,
+                calculated using orthogonal and diagonal pixel connections.
+                - 'length in microns' (float): Estimated root-hair length in microns,
+                calculated using the microscope conversion factor.
 
-                components_masks (np.ndarray): Full-size integer-labeled array produced
-                    by connected-component analysis of the skeletonized root-hair mask.
-                    Background pixels are labeled 0, while each connected component
-                    receives a unique positive integer label. Includes both accepted
-                    and rejected root-hair candidates.
+            components_masks (np.ndarray): Full-size integer-labeled array produced
+                by connected-component analysis of the skeletonized root-hair mask.
+                Background pixels are labeled 0, while each connected component
+                receives a unique positive integer label. Includes both accepted
+                and rejected root-hair candidates.
 
     '''
 
@@ -251,10 +251,14 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
 from itertools import combinations
 import networkx as nx
 def pairBranches(vectors):
-    '''
-    Receives vectors from a single node and calculates valid pairings across a junction 
+    ''' Receives vectors from a single node and calculates valid pairings across a junction 
     using maximum-weight matching. 
-    '''
+    
+    Returns:
+        dict:
+            pairings: node_id: {branch1:branch2, branch2:branch1, branch5:None }'''
+            
+            
     matching_graph = nx.Graph()
 
     # Each original skeleton edge becomes a node
@@ -284,6 +288,7 @@ def pairBranches(vectors):
         matching_graph,
         maxcardinality=True
     )
+    # matching = nx.maximal_matching(matching_graph)
 
     # Bidirectional lookup dictionary
     pairings = {edge: None for edge in vectors}
@@ -297,7 +302,24 @@ def pairBranches(vectors):
 import sknw
 def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower):
     '''Breaks skeleton mask of root hairs into individual root hair masks. Primarily used
-    for main_v3 workflow.'''
+    for main_v3 workflow.
+    
+    Returns:
+        tuple:
+            valid_root_hair_masks (list[dict]): A list of dictionaries, each representing
+                a valid root hair that passed the connectivity, branching, length, and
+                main-root proximity filters. Each dictionary contains:
+
+                - 'id' (int): Unique connected-component label identifying the root hair.
+                - 'mask' (np.ndarray): Full-size binary mask of the individual root hair,
+                where 1 represents root-hair pixels and 0 represents background.
+                - 'thicker mask' (np.ndarray): Dilated version of the root-hair mask,
+                used for visualization purposes.
+                - 'length' (float): Estimated root-hair skeleton length in pixels,
+                calculated using orthogonal and diagonal pixel connections.
+                - 'length in microns' (float): Estimated root-hair length in microns,
+                calculated using the microscope conversion factor.
+    '''
 
     # initiate final dictionary that will be what is returned 
     valid_root_hair_masks = []
@@ -315,9 +337,19 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
     endpoints_array = {node_id: graph.nodes[node_id]['o'] for node_id, degree in graph.degree() if degree == 1}
     node_arrays = {node_id: graph.nodes[node_id]['o'] for node_id, degree in graph.degree() if degree >= 2} 
 
+
     ### Create a dictionary for each junction that contains pairs of branches for traversal
- 
+    
+    # initiate dict 
     junction_pairings = {}
+
+    # Find endpoints that are nearest to the main root
+    endpoints_array_near_root = {}
+    for endpoint_id, endpoint_coord in endpoints_array.items():
+        for n in range(1,4): # check if pixels within a 4 pixel range left and right of endpoint are in contours
+            y,x = endpoint_coord
+            if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
+                endpoints_array_near_root[endpoint_id] = endpoint_coord
 
     # iterate through each node:
     for node_id, node_coord in node_arrays.items(): # node: int, node_coord: (y, x)
@@ -378,8 +410,8 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
     # make a set that tracks all the unique edges that are traversed
     completed_paths = set()
 
-    # iterate through a list of endpoints:
-    for idx, (endpoint_id, endpoint_coord) in enumerate(endpoints_array.items()):
+    # iterate through a list of endpoints that are near the main root:
+    for idx, (endpoint_id, endpoint_coord) in enumerate(endpoints_array_near_root.items()):
 
         # initiate a list for creation of individual root ('individual_root') using id's
         individual_root = []
@@ -486,27 +518,27 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         if length_in_microns > upper or length_in_microns < lower: 
             continue
 
-        # Check if root hair is within a reasonable distance to the main root 
-        # Find coordinates of 2 endpoints nodes of the individual root 
-        start_node_id = individual_root[0]
-        end_node_id = individual_root[-1]
+        # # Check if root hair is within a reasonable distance to the main root 
+        # # Find coordinates of 2 endpoints nodes of the individual root 
+        # start_node_id = individual_root[0]
+        # end_node_id = individual_root[-1]
 
-        start_node = graph.nodes[start_node_id]['o']
-        end_node = graph.nodes[end_node_id]['o']
-        coords_of_endpoints = np.rint(np.vstack((start_node, end_node))).astype(int) # combine coordinates and round in case node has floats 
+        # start_node = graph.nodes[start_node_id]['o']
+        # end_node = graph.nodes[end_node_id]['o']
+        # coords_of_endpoints = np.rint(np.vstack((start_node, end_node))).astype(int) # combine coordinates and round in case node has floats 
 
-        # find proximity of endpoints to main root using main root contour coordinates 
-        endpoint_near_root = False
-        for y,x in coords_of_endpoints:
-            for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
-                if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
-                    endpoint_near_root = True
-                    break
-            if endpoint_near_root:
-                break
+        # # find proximity of endpoints to main root using main root contour coordinates 
+        # endpoint_near_root = False
+        # for y,x in coords_of_endpoints:
+        #     for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
+        #         if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
+        #             endpoint_near_root = True
+        #             break
+        #     if endpoint_near_root:
+        #         break
         
-        if not endpoint_near_root:
-            continue 
+        # if not endpoint_near_root:
+        #     continue 
 
         # Paint blank mask with coordinates 
         grid[coords_list[:, 0], coords_list[:, 1]] = 1
@@ -526,7 +558,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             'length in microns': length_in_microns,
         })
     
-    return valid_root_hair_masks
+    return valid_root_hair_masks, graph
 
 
 def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
