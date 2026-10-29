@@ -284,11 +284,10 @@ def pairBranches(vectors):
             weight=float(angle)
         )
 
-    # matching = nx.max_weight_matching(
-    #     matching_graph,
-    #     maxcardinality=True
-    # )
-    matching = nx.maximal_matching(matching_graph)
+    matching = nx.max_weight_matching(
+        matching_graph,
+        maxcardinality=False
+    )
 
     # Bidirectional lookup dictionary
     pairings = {edge: None for edge in vectors}
