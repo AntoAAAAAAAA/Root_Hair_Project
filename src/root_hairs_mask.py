@@ -275,7 +275,16 @@ def pairBranches(vectors):
             1.0
         )
 
+        # find a good angle
         angle = np.degrees(np.arccos(cosine))
+        # if angle < 120:
+        #     continue 
+
+        # TESTING
+        print(
+            f"{edge_a} vs {edge_b}: "
+            f"{angle:.1f} degrees"
+        )
 
         # Higher angles are better for outward vectors
         matching_graph.add_edge(
@@ -347,6 +356,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
     for endpoint_id, endpoint_coord in endpoints_array.items():
         for n in range(1,8): # check if pixels within a 8 pixel range left and right of endpoint are in contours
             y,x = endpoint_coord
+            y,x = round(y), round(x)
             if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
                 endpoints_array_near_root[endpoint_id] = endpoint_coord
 
@@ -364,10 +374,13 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             dist_to_start = np.linalg.norm(pts[0] - node_coord)
             dist_to_end = np.linalg.norm(pts[-1] - node_coord)
 
+            vector_distance = 2
             if dist_to_start < dist_to_end:
-                next_pt = pts[min(2, len(pts)-1)] #next_pt: 1D numpy array [y, x]
+                # next_pt = pts[min(2, len(pts)-1)] #next_pt: 1D numpy array [y, x]
+                next_pt = pts[min(vector_distance, len(pts)-1)]
             else:
-                next_pt = pts[max(0, len(pts)-3)]
+                # next_pt = pts[max(0, len(pts)-3)]
+                next_pt = pts[max(0, len(pts)-1-vector_distance)]
 
             vector = next_pt - node_coord # vector: 1D numpy array
 

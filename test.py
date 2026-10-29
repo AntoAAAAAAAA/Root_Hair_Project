@@ -244,7 +244,7 @@ if __name__ == '__main__':
 
     output_path = (
         Path(__file__).resolve().parent
-        / "root_hairs_filtered_maximal.png"
+        / "root_hairs_vd2.png"
     )
 
     plt.savefig(output_path, dpi=200, bbox_inches="tight")
