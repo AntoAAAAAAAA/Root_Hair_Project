@@ -299,6 +299,9 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
     '''Breaks skeleton mask of root hairs into individual root hair masks. Primarily used
     for main_v3 workflow.'''
 
+    # initiate final dictionary that will be what is returned 
+    valid_root_hair_masks = []
+
     # Pull coordinates of main contour 
     all_contours = np.vstack(contours)
     coords_of_contours = all_contours.reshape(-1, 2)
@@ -308,9 +311,9 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
     graph = sknw.build_sknw(skeletonized_hairs, multi=True, iso=False, ring=False, full=True)
 
     # pull coordinates for junctions (nodes), branches, and endpoints
-    branch_coords = {(u,v,key): data['pts'] for u, v, key, data in graph.edges(keys=True, data=True)}
+    branch_coords = {(min(u, v), max(u, v), key): data['pts'] for u, v, key, data in graph.edges(keys=True, data=True)}
     endpoints_array = {node_id: graph.nodes[node_id]['o'] for node_id, degree in graph.degree() if degree == 1}
-    node_arrays = {node_id: graph.nodes[node_id]['o'] for node_id, degree in graph.degree() if degree >= 3}
+    node_arrays = {node_id: graph.nodes[node_id]['o'] for node_id, degree in graph.degree() if degree >= 2} 
 
     ### Create a dictionary for each junction that contains pairs of branches for traversal
  
@@ -323,12 +326,8 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         vectors = {} # neighbor_id : vector 
         for u, v, key, data in graph.edges(node_id, keys=True, data=True):
 
-            edge_id = (u, v, key) # unique identifier of an edge 
+            edge_id = (min(u, v), max(u, v), key) # unique identifier of an edge 
             pts = data['pts'] #pts: 2D numpy array
-
-            # skip if an edge is basically nonexistent 
-            if len(pts) < 2:
-                continue
 
             # Determine which end of the branch is near the junction
             dist_to_start = np.linalg.norm(pts[0] - node_coord)
@@ -342,7 +341,25 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             vector = next_pt - node_coord # vector: 1D numpy array
 
             norm = np.linalg.norm(vector)
-            if norm == 0: 
+
+            # Try to find another pixel with a nonzero displacement
+            if norm == 0:
+                distances = np.linalg.norm(pts - node_coord, axis=1)
+                valid_indices = np.flatnonzero(distances > 0)
+
+                if len(valid_indices) > 0:
+                    # Choose the nearest noncoincident point
+                    next_pt = pts[valid_indices[np.argmin(distances[valid_indices])]]
+                    vector = next_pt - node_coord
+                    norm = np.linalg.norm(vector)
+
+            # Fallback: use node on other part of branch 
+            if norm == 0:
+                other_node_id = v if node_id == u else u
+                vector = graph.nodes[other_node_id]['o'] - node_coord
+                norm = np.linalg.norm(vector)
+
+            if norm == 0: # a vector of 0 can generate when the node = next_pt 
                 continue 
 
             vectors[edge_id] = vector / norm
@@ -358,8 +375,11 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
     # initiate a list of valid roots ('valid_roots')
     valid_roots = []
 
+    # make a set that tracks all the unique edges that are traversed
+    completed_paths = set()
+
     # iterate through a list of endpoints:
-    for endpoint_id, endpoint_coord in endpoints_array.items():
+    for idx, (endpoint_id, endpoint_coord) in enumerate(endpoints_array.items()):
 
         # initiate a list for creation of individual root ('individual_root') using id's
         individual_root = []
@@ -371,78 +391,143 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         individual_root.append(endpoint_id)
         visited_nodes.add(endpoint_id)
 
-        # find connecting junction 
-        first_node_id = next(iter(graph.neighbors(endpoint_id)))
-            # remark: There can only be one id in this variable b/c endpoint_id has to be degree 1
-
         # find connecting branch and add 
-        first_branch_id = next(iter(graph.edges(endpoint_id, keys=True))) # by same logic as remark above, there is 1 branch_id
-        first_branch = branch_coords[first_branch_id] 
+        u, v, key = next(iter(graph.edges(endpoint_id, keys=True))) # by same logic as remark above, there is 1 branch_id
+        first_branch_id = (min(u, v), max(u, v), key)
+
+        # find connecting junction 
+        first_node_id = v if endpoint_id == u else u
+
+        # add branch id to set and individual root
         individual_root.append(first_branch_id)
         visited_edges.add(first_branch_id)
 
         # find node and add 
-        first_node = graph.nodes[first_node_id]['o']
         individual_root.append(first_node_id)
         visited_nodes.add(first_node_id)
 
         ### start a loop to iterate through successive nodes and branches  
         incoming_branch_id = first_branch_id
-        current_node = first_node
         current_node_id = first_node_id
         while True:
 
             # B/c endpoints aren't in junction_pairings, check if loop reaches an endpoint first
             if graph.degree(current_node_id) == 1:
                 break
+            # also check that the node is in junction pairings, otherwise the preceding dictionary lookup won't work
             if current_node_id not in junction_pairings:
                 break
 
             # look up junction, use branch pairing to find opposite branch
-            opposite_branch_id = junction_pairings[current_node_id][incoming_branch_id]
+            opposite_branch_id = junction_pairings[current_node_id].get(incoming_branch_id)
             if opposite_branch_id == None:
                 break # Stop loop once a branch terminates at a junction 
-            opposite_branch = branch_coords[opposite_branch_id]
 
             # check that opposite branch isn't in set()
                 # if not then add to individual root hair list and set()
-            if opposite_branch in visited_edges:
+            if opposite_branch_id in visited_edges:
                 break # no duplicates
-            else:
-                individual_root.append(opposite_branch_id) 
-                visited_edges.add(opposite_branch_id)
-
+                 
             # find opposite junction and add 
             opposite_node_id = None
             u, v, key = opposite_branch_id # u and v are two nodes at ends of a branch 
             opposite_node_id = v if current_node_id == u else u
-            opposite_node = graph.nodes[opposite_node_id]['o']
+
+            # check that we aren't traversing a node already traversed 
+            if opposite_node_id in visited_nodes:
+                break
+
+            # add edges and nodes to set and individual root
+            visited_edges.add(opposite_branch_id)
+            individual_root.append(opposite_branch_id)
+            visited_nodes.add(opposite_node_id)
             individual_root.append(opposite_node_id)
 
-            # check that we aren't traversing a branch we already have used 
-            if opposite_node in visited_nodes:
-                break
-            else:
-                visited_nodes.add(opposite_node_id)
-
+            # update incoming branch and current node for next iteration 
             incoming_branch_id = opposite_branch_id
-            current_node = opposite_node
             current_node_id = opposite_node_id
 
+        # use completed_paths to make sure this path has not already been traversed (no duplicate roots)
+        list_edge_ids = individual_root[1::2]
+        forward = tuple(list_edge_ids) 
+        backward = tuple(reversed(list_edge_ids))
+        root_hair_signature = min(forward, backward)
 
-        # append the individual root hair list to list for final root hairs
+        if root_hair_signature in completed_paths:
+            continue
+        completed_paths.add(root_hair_signature)
+        # append the individual root hair list to list for final root hairs if not a duplicate 
         valid_roots.append(individual_root)
-    
-    ### Run post-processing filtering through final root hairs list. For each root hair, check:
-        # length (between upper and lower)
-        # distance of endpoint to main root (using contours)
-        # for significantly long branches 
 
 
-    # # testing
-    # use nx.draw(G) where G is a graph to visualize it 
+        ### Create root hair mask (type: np.uint8) from individual root
+        # make blank mask 
+        grid = np.zeros_like(skeletonized_hairs)
+
+        # condense individual root into list of coordinates 
+        coords_list = []
+        for item in individual_root:
+            
+            coords = None
+            if type(item) == int: # an int means its a node_id
+                coords = graph.nodes[item]['o'] # 1D numpy array
+                coords = coords[np.newaxis, :] # turn into 2D numpy array
+                coords_list.append(coords)
+            if type(item) == tuple: # a tuple means its a branch_id
+                coords = branch_coords[item] # 2D numpy array 
+                coords_list.append(coords)
+
+        coords_list = np.rint(np.vstack(coords_list)).astype(int) # remove 2nd dimension and rounded to nearest int
+
+        ### Filters for good root hairs 
+        # Calculate the length of the root hair and exclude root hairs that are too long/too short  
+        length_in_pixels = sum(graph[u][v][key]["weight"] for u, v, key in list_edge_ids)
+        length_in_microns = length_in_pixels * microscope_conversion_factor
+        if length_in_microns > upper or length_in_microns < lower: 
+            continue
+
+        # Check if root hair is within a reasonable distance to the main root 
+        # Find coordinates of 2 endpoints nodes of the individual root 
+        start_node_id = individual_root[0]
+        end_node_id = individual_root[-1]
+
+        start_node = graph.nodes[start_node_id]['o']
+        end_node = graph.nodes[end_node_id]['o']
+        coords_of_endpoints = np.rint(np.vstack((start_node, end_node))).astype(int) # combine coordinates and round in case node has floats 
+
+        # find proximity of endpoints to main root using main root contour coordinates 
+        endpoint_near_root = False
+        for y,x in coords_of_endpoints:
+            for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
+                if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
+                    endpoint_near_root = True
+                    break
+            if endpoint_near_root:
+                break
+        
+        if not endpoint_near_root:
+            continue 
+
+        # Paint blank mask with coordinates 
+        grid[coords_list[:, 0], coords_list[:, 1]] = 1
+        root_hair_mask = grid
+        
+        # Create a dilated/thicker mask of the root hair (for visualization purposes)
+        kernel = np.ones((4,4), np.uint8)
+        thicker_mask = cv2.dilate(root_hair_mask, kernel, iterations=1)
+
+        ### append dictionary to final list that contains final information for each individual root 
+        valid_root_hair_masks.append({
+            'id': idx,
+            'mask': root_hair_mask,
+            'thicker mask': thicker_mask,
+            # 'cropped_component_mask': cropped_component_mask,
+            'length': length_in_pixels,
+            'length in microns': length_in_microns,
+        })
     
-    return graph
+    return valid_root_hair_masks
+
 
 def makeFinalMaskWithFinalRootHairs(image_grey, valid_root_hair_masks):
     '(Used primarily in testing) This function creates an overlay of the filtered root hairs on top of the original grayscale image.'
