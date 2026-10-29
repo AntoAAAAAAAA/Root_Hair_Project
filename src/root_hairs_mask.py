@@ -284,11 +284,11 @@ def pairBranches(vectors):
             weight=float(angle)
         )
 
-    matching = nx.max_weight_matching(
-        matching_graph,
-        maxcardinality=True
-    )
-    # matching = nx.maximal_matching(matching_graph)
+    # matching = nx.max_weight_matching(
+    #     matching_graph,
+    #     maxcardinality=True
+    # )
+    matching = nx.maximal_matching(matching_graph)
 
     # Bidirectional lookup dictionary
     pairings = {edge: None for edge in vectors}
@@ -346,7 +346,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
     # Find endpoints that are nearest to the main root
     endpoints_array_near_root = {}
     for endpoint_id, endpoint_coord in endpoints_array.items():
-        for n in range(1,4): # check if pixels within a 4 pixel range left and right of endpoint are in contours
+        for n in range(1,8): # check if pixels within a 8 pixel range left and right of endpoint are in contours
             y,x = endpoint_coord
             if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
                 endpoints_array_near_root[endpoint_id] = endpoint_coord
