@@ -281,10 +281,10 @@ def pairBranches(vectors):
         #     continue 
 
         # TESTING
-        print(
-            f"{edge_a} vs {edge_b}: "
-            f"{angle:.1f} degrees"
-        )
+        # print(
+        #     f"{edge_a} vs {edge_b}: "
+        #     f"{angle:.1f} degrees"
+        # )
 
         # Higher angles are better for outward vectors
         matching_graph.add_edge(
@@ -374,7 +374,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             dist_to_start = np.linalg.norm(pts[0] - node_coord)
             dist_to_end = np.linalg.norm(pts[-1] - node_coord)
 
-            vector_distance = 2
+            vector_distance = 20
             if dist_to_start < dist_to_end:
                 # next_pt = pts[min(2, len(pts)-1)] #next_pt: 1D numpy array [y, x]
                 next_pt = pts[min(vector_distance, len(pts)-1)]

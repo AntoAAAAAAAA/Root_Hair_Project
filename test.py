@@ -59,7 +59,8 @@ if __name__ == '__main__':
 
     image_path = '/Users/antoantony/Root_Hair_ML/Images/KeptImages/015.png'
     microscope_conversion_factor = 3.34
-    upper = 500
+    # upper = 500
+    upper = 1000
     lower = 3
 
     ###### main_v3 code #######
@@ -462,6 +463,19 @@ if __name__ == '__main__':
     def inspectNode(node_to_inspect):
         from itertools import combinations
 
+        if node_to_inspect not in graph:
+            print(f"Node {node_to_inspect} does not exist.")
+            return
+
+        degree = graph.degree(node_to_inspect)
+
+        print(f"\nInspecting node {node_to_inspect}")
+        print(f"Degree: {degree}")
+
+        if "debug_vectors" not in graph.nodes[node_to_inspect]:
+            print("No matching analysis for this node.")
+            return
+
         vectors = graph.nodes[node_to_inspect]["debug_vectors"]
         pairings = graph.nodes[node_to_inspect]["debug_pairings"]
 
@@ -492,4 +506,4 @@ if __name__ == '__main__':
                 f"{angle:.1f} degrees {status}"
             )
 
-    inspectNode(1) ##### CHANGE NODE TO INSPECT
+    inspectNode(93) ##### CHANGE NODE TO INSPECT

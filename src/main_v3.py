@@ -27,7 +27,7 @@ def main_v3(image_gray, microscope_conversion_factor, upper, lower, predictor):
     contours, _ = cv2.findContours(main_root, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     # Filter for valid root hairs 
-    valid_root_hair_masks, _ = makeValidRootHairAnalysis(skeleton_hairs, contours, microscope_conversion_factor, upper, lower)
+    valid_root_hair_masks, _ = extractAndFilterRootHairs(skeleton_hairs, contours, microscope_conversion_factor, upper, lower)
     
     # Create final overlay and a list of individual root hairs that can be displayed 
     fig, traces = makeFinalPlotlyVisual(image_gray, valid_root_hair_masks)
