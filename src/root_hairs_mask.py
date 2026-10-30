@@ -411,6 +411,11 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         # output a dict that contains the proper pairings (pair up deadend branches with 'None' or something else)
         pairings = pairBranches(vectors)
 
+        ##### TESTING BLOCK ####################
+        graph.nodes[node_id]["debug_vectors"] = vectors.copy()
+        graph.nodes[node_id]["debug_pairings"] = pairings.copy()
+        ########################################
+
         # create an identifier to the dictionary, and add the dict of pairings as the value
         junction_pairings[node_id] = pairings # node_id: {branch1:branch2, branch2:branch1, branch3:branch4, branch4:branch3, branch5:None }
 
@@ -568,6 +573,8 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             # 'cropped_component_mask': cropped_component_mask,
             'length': length_in_pixels,
             'length in microns': length_in_microns,
+            'edge_ids': list_edge_ids.copy(),
+            'node_ids': individual_root[0::2].copy(),
         })
     
     return valid_root_hair_masks, graph
