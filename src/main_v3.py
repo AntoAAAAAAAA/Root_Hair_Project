@@ -17,13 +17,19 @@ def main_v3(image_gray, microscope_conversion_factor, upper, lower, predictor):
     # Put image through ML model 
     segmentation = nnUnet(image_gray, predictor)
 
-    #  Create new masks
+    # Create new masks
     segmentation = np.squeeze(segmentation) # remove the 1 dimension (1, 768, 1024) --> (768, 1024)
     main_root = (segmentation == 1).astype(np.uint8) * 255
     root_hairs = (segmentation == 2).astype(np.uint8) * 255
 
-    # skeletonize hairs and create contour of main_root 
+    # skeletonize hairs 
     skeleton_hairs = skeletonizeRootHairMask(root_hairs)
+    # skeleton_hairs = cv2.ximgproc.thinning(root_hairs, thinningType=cv2.ximgproc.THINNING_GUOHALL) # cv2.ximgproc.THINNING_ZHANGSUEN
+    # import diplib as dip
+    # skeleton_hairs = dip.EuclideanSkeleton(root_hairs)
+    # skeleton_hairs = np.asarray(skeleton_hairs).astype(np.uint8) * 255
+
+    # Create contour of main_root
     contours, _ = cv2.findContours(main_root, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     # Filter for valid root hairs 

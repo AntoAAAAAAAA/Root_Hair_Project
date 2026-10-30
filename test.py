@@ -57,7 +57,7 @@ def initalize_predictor():
 
 if __name__ == '__main__':
 
-    image_path = '/Users/antoantony/Root_Hair_ML/Images/KeptImages/015.png'
+    image_path = '/Users/antoantony/Root_Hair_ML/Images/KeptImages/064.png'
     microscope_conversion_factor = 3.34
     # upper = 500
     upper = 1000
@@ -440,18 +440,18 @@ if __name__ == '__main__':
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False, autorange="reversed")
 
-    output_path = (
-        Path(__file__).resolve().parent
-        / "root_hairs_interactive_debug.html"
-    )
+    # output_path = (
+    #     Path(__file__).resolve().parent
+    #     / "root_hairs_interactive_debug.html"
+    # )
 
-    fig.write_html(
-        str(output_path),
-        include_plotlyjs=True,
-        config={"scrollZoom": True}
-    )
+    # fig.write_html(
+    #     str(output_path),
+    #     include_plotlyjs=True,
+    #     config={"scrollZoom": True}
+    # )
 
-    print(f"Interactive visualization saved to: {output_path}")
+    # print(f"Interactive visualization saved to: {output_path}")
 
     # Optional: display it immediately
     fig.show()
@@ -506,4 +506,4 @@ if __name__ == '__main__':
                 f"{angle:.1f} degrees {status}"
             )
 
-    inspectNode(93) ##### CHANGE NODE TO INSPECT
+    # inspectNode(93) ##### CHANGE NODE TO INSPECT

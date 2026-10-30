@@ -44,7 +44,7 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
         y_coords, x_coords = np.where(ind_mask > 0)
         trace = go.Scattergl(
             x=x_coords, y=y_coords, mode="markers",
-            marker=dict(size=3, color = "mediumblue"),
+            marker=dict(size=3, color = "#06C9FF"),
             customdata=np.full(len(x_coords),id),
             hovertemplate=(
                 f"Hair ID: {id}<br>"

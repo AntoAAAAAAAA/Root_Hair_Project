@@ -54,7 +54,7 @@ def initalize_predictor():
         return base_path / relative_path
 
 
-    MODEL_DIR = get_resource_path("Compressed_Unet")
+    MODEL_DIR = get_resource_path("Compressed_Unet2")
     os.environ["nnUNet_extTrainer"] = str(MODEL_DIR)
 
     if str(MODEL_DIR) not in sys.path:
