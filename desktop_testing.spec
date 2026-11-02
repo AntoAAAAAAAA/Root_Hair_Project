@@ -107,6 +107,7 @@ allHiddenImports = list(
             "nnunetv2.inference.predict_from_raw_data",
             "custom_trainers.nnUNetTrainer_RootHair",
             "platformdirs",
+            "sknw",
         ]
     )
 )
