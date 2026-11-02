@@ -49,8 +49,6 @@ projectDatas = [
     ("src", "src"),
     (".streamlit", ".streamlit"),
 
-    ("sam2_l.pt", "."),
-
     # Model weights, configuration and custom trainer source
     ("Compressed_Unet2", "Compressed_Unet2"),
 ]
