@@ -1,6 +1,6 @@
 # Root Hair Analyzer
 
-Link to project: [Click Here](https://roothairanalyzer.streamlit.app/)
+Link to project: [Click Here](https://roothairwebsite.streamlit.app/)
 
 A Streamlit-based image analysis tool for semi-automated root hair detection, masking, visualization, and measurement from microscopy images.
 
