@@ -250,7 +250,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
 
 from itertools import combinations
 import networkx as nx
-def pairBranches(vectors):
+def pairBranches(vectors, endpoints_array, graph):
     ''' Receives vectors from a single node and calculates valid pairings across a junction 
     using maximum-weight matching. 
     
@@ -258,27 +258,37 @@ def pairBranches(vectors):
         dict:
             pairings: node_id: {branch1:branch2, branch2:branch1, branch5:None }'''
             
-            
+    # Initiate a separate graph. In this graph, the branch_id's will act as nodes and the 
+    # branches between the nodes will act as weights (weights = angle between vectors)
     matching_graph = nx.Graph()
 
-    # Each original skeleton edge becomes a node
-    matching_graph.add_nodes_from(vectors)
+    # look-up table for branches that are 'prunes'
+    prunes = set()
 
-    for edge_a, edge_b in combinations(vectors, 2):
+    ### filter out branches that are 'prunes'. A 'prune' is defined by (1) and (2)
+    for edge_id in vectors:
+        u, v, key = edge_id
+        if u in endpoints_array or v in endpoints_array: # (1) branch that ends in an endpoint 
+            distance = graph[u][v][key]['weight']
+            if distance < 3: # (2) branch is significantly short 
+                prunes.add(edge_id)
+
+    valid_edges = [edge_id for edge_id in vectors if edge_id not in prunes]
+    
+    # Each original skeleton edge becomes a node
+    matching_graph.add_nodes_from(valid_edges)
+
+
+    ### pair branches 
+    # iterate through all pairs of valid edges 
+    for edge_a, edge_b in combinations(valid_edges, 2):
 
         vector_a = vectors[edge_a]
         vector_b = vectors[edge_b]
 
-        cosine = np.clip(
-            np.dot(vector_a, vector_b),
-            -1.0,
-            1.0
-        )
-
-        # find a good angle
+        # calculate angle between vectors 
+        cosine = np.clip( np.dot(vector_a, vector_b),-1.0,1.0)
         angle = np.degrees(np.arccos(cosine))
-        # if angle < 120:
-        #     continue 
 
         # TESTING
         # print(
@@ -286,21 +296,23 @@ def pairBranches(vectors):
         #     f"{angle:.1f} degrees"
         # )
 
-        # Higher angles are better for outward vectors
+        # Add edge connecting the two edge_nodes, using the angle as the weight 
         matching_graph.add_edge(
             edge_a,
             edge_b,
             weight=float(angle)
         )
 
+    # Use networkX's maximum weight matching to pair edges 
     matching = nx.max_weight_matching(
         matching_graph,
         maxcardinality=False
     )
 
-    # Bidirectional lookup dictionary
+    # Initiate bidirectional lookup dictionary
     pairings = {edge: None for edge in vectors}
 
+    # Create edge pairings 
     for edge_a, edge_b in matching:
         pairings[edge_a] = edge_b
         pairings[edge_b] = edge_a
@@ -409,7 +421,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             vectors[edge_id] = vector / norm
 
         # output a dict that contains the proper pairings (pair up deadend branches with 'None' or something else)
-        pairings = pairBranches(vectors)
+        pairings = pairBranches(vectors, endpoints_array, graph)
 
         ##### TESTING BLOCK ####################
         graph.nodes[node_id]["debug_vectors"] = vectors.copy()
