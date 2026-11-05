@@ -250,7 +250,7 @@ def makeValidRootHairAnalysis(skeletonized_hairs, contours, microscope_conversio
 
 from itertools import combinations
 import networkx as nx
-def pairBranches(vectors, endpoints_array, graph):
+def pairBranches(vectors, endpoints_array, graph, edge_sides = None):
     ''' Receives vectors from a single node and calculates valid pairings across a junction 
     using maximum-weight matching. 
     
@@ -283,6 +283,12 @@ def pairBranches(vectors, endpoints_array, graph):
     # iterate through all pairs of valid edges 
     for edge_a, edge_b in combinations(valid_edges, 2):
 
+        # If we have a short_bridge junction combo, make sure the two edges are not from the same junction 
+        # We need 1 to be from j1 and the other to be from j2
+        if edge_sides is not None:
+            if edge_sides[edge_a] == edge_sides[edge_b]: # ex. j2 == j2
+                continue
+
         vector_a = vectors[edge_a]
         vector_b = vectors[edge_b]
 
@@ -309,8 +315,8 @@ def pairBranches(vectors, endpoints_array, graph):
         maxcardinality=False
     )
 
-    # Initiate bidirectional lookup dictionary
-    pairings = {edge: None for edge in vectors}
+    # Initiate bidirectional lookup dictionary 
+    pairings = {edge: None for edge in valid_edges}
 
     # Create edge pairings 
     for edge_a, edge_b in matching:
@@ -359,9 +365,6 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
 
 
     ### Create a dictionary for each junction that contains pairs of branches for traversal
-    
-    # initiate dict 
-    junction_pairings = {}
 
     # Find endpoints that are nearest to the main root
     endpoints_array_near_root = {}
@@ -372,65 +375,189 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
                 endpoints_array_near_root[endpoint_id] = endpoint_coord
 
-    # iterate through each node:
+    # initiate output dict for junction pairings 
+    junction_pairings = {}
+
+    # node processing for short_bridges 
+    processed_nodes = set()
+
+    ### iterate through each node:
     for node_id, node_coord in node_arrays.items(): # node: int, node_coord: (y, x)
-        pass
-        # create vectors for each branch coming out of node (pair these up)
-        vectors = {} # neighbor_id : vector 
-        for u, v, key, data in graph.edges(node_id, keys=True, data=True):
 
-            edge_id = (min(u, v), max(u, v), key) # unique identifier of an edge 
-            pts = data['pts'] #pts: 2D numpy array
+        # Skip junctions that have already been processed
+        if node_id in processed_nodes:
+            continue
 
-            # Determine which end of the branch is near the junction
-            dist_to_start = np.linalg.norm(pts[0] - node_coord)
-            dist_to_end = np.linalg.norm(pts[-1] - node_coord)
+        ### check if a node as a short_bridge edge
+        shortbridgecounter = 0
+        j1 = node_id
+        j2 = None
+        short_bridge = None
+        if graph.degree(node_id) == 3: # check that this node is degree 3 
+            for u, v, key, data in graph.edges(node_id, keys=True, data=True):
+                next_node_id = v if u == node_id else u 
+                # Don't consider a junction that was already processed
+                if next_node_id in processed_nodes:
+                    continue
+                if graph.degree(next_node_id) == 3: # check that a surrounding edge is attached to a node of degree 3
+                    distance = data['weight']
+                    if distance < 15:
+                         # Check whether j2 ALSO has exactly one eligible short bridge, which must be
+                         # the same edge connecting j1 and j2
+                        j2 = next_node_id
 
-            vector_distance = 20
-            if dist_to_start < dist_to_end:
-                # next_pt = pts[min(2, len(pts)-1)] #next_pt: 1D numpy array [y, x]
-                next_pt = pts[min(vector_distance, len(pts)-1)]
-            else:
-                # next_pt = pts[max(0, len(pts)-3)]
-                next_pt = pts[max(0, len(pts)-1-vector_distance)]
+                        for u2, v2, key2, data2 in graph.edges(j2, keys=True, data=True):
+                            next_node_id2 = v2 if u2 == j2 else u2
+                            if graph.degree(next_node_id2) == 3: # check that a surrounding edge is attached to a node of degree 3
+                                distance2 = data2['weight']
+                                if distance2 < 15 and j2 not in processed_nodes: # distance is again good and j2 hasn't been processed yet 
+                                        shortbridgecounter += 1
+                                        if (min(u,v), max(u,v), key) == (min(u2,v2), max(u2,v2), key2): # if edges are the same . . . 
+                                            # . . . we have a short bridge
+                                            short_bridge = (min(u, v), max(u, v), key) # unique identifier of an edge 
 
-            vector = next_pt - node_coord # vector: 1D numpy array
+                        
 
-            norm = np.linalg.norm(vector)
+        short_connections_at_j1 = sum(
+            1
+            for u, v, key, data in graph.edges(j1, keys=True, data=True)
+            if u != v
+            and data["weight"] < 15
+            and graph.degree(v if u == j1 else u) == 3
+        )
+        # if more than 1 eligible short bridge or 1 connections to j1, reset so node is treated as a normal node 
+        if shortbridgecounter > 1 or short_connections_at_j1 > 1:
+            j1 = node_id
+            j2 = None
+            short_bridge = None 
+                            
+        ### decide which junctions to process depending on if junction has a short_bridge
+        if short_bridge is None:
+            # normal junction 
+            junctions_to_process = [j1]
+        else:
+            # merged junction (for junctions with a short_bridge)
+            junctions_to_process = [j1, j2]
 
-            # Try to find another pixel with a nonzero displacement
-            if norm == 0:
-                distances = np.linalg.norm(pts - node_coord, axis=1)
-                valid_indices = np.flatnonzero(distances > 0)
 
-                if len(valid_indices) > 0:
-                    # Choose the nearest noncoincident point
-                    next_pt = pts[valid_indices[np.argmin(distances[valid_indices])]]
-                    vector = next_pt - node_coord
-                    norm = np.linalg.norm(vector)
+        ### calculate vectors 
 
-            # Fallback: use node on other part of branch 
-            if norm == 0:
-                other_node_id = v if node_id == u else u
-                vector = graph.nodes[other_node_id]['o'] - node_coord
+        # initialize dictionaries
+        vectors = {} # neighbor_id : vector  
+        edge_sides = {} # edge_id: junction
+        short_bridge_vector = None # way to pull out the vector because it will be removed, and added later 
+
+        # iterate through junctions; either 2 junctions for short bridge, or 1 for normal 
+        for junction in junctions_to_process:
+
+            # Get coordinates of this particular junction/node
+            node_coord = graph.nodes[junction]["o"]
+            
+            for u, v, key, data in graph.edges(junction, keys=True, data=True): 
+
+                edge_id = (min(u, v), max(u, v), key) 
+
+                # find points that make up the edge 
+                pts = data['pts'] #pts: 2D numpy array
+
+                # Determine which end of the branch is near the junction
+                dist_to_start = np.linalg.norm(pts[0] - node_coord)
+                dist_to_end = np.linalg.norm(pts[-1] - node_coord)
+
+                # we will look 20 pixels away from a node to calculate a vector 
+                vector_distance = 20
+                if dist_to_start < dist_to_end:
+                    # next_pt = pts[min(2, len(pts)-1)] # next_pt: 1D numpy array [y, x]
+                    next_pt = pts[min(vector_distance, len(pts)-1)]
+                else:
+                    # next_pt = pts[max(0, len(pts)-3)]
+                    next_pt = pts[max(0, len(pts)-1-vector_distance)]
+
+                vector = next_pt - node_coord # vector: 1D numpy array
                 norm = np.linalg.norm(vector)
 
-            if norm == 0: # a vector of 0 can generate when the node = next_pt 
-                continue 
+                # Try to find another pixel with a nonzero displacement
+                if norm == 0:
+                    distances = np.linalg.norm(pts - node_coord, axis=1)
+                    valid_indices = np.flatnonzero(distances > 0)
 
-            vectors[edge_id] = vector / norm
+                    if len(valid_indices) > 0:
+                        # Choose the nearest noncoincident point
+                        next_pt = pts[valid_indices[np.argmin(distances[valid_indices])]]
+                        vector = next_pt - node_coord
+                        norm = np.linalg.norm(vector)
 
-        # output a dict that contains the proper pairings (pair up deadend branches with 'None' or something else)
-        pairings = pairBranches(vectors, endpoints_array, graph)
+                # Fallback: use node on other part of branch 
+                if norm == 0:
+                    other_node_id = v if junction == u else u
+                    vector = graph.nodes[other_node_id]['o'] - node_coord
+                    norm = np.linalg.norm(vector)
 
-        ##### TESTING BLOCK ####################
-        graph.nodes[node_id]["debug_vectors"] = vectors.copy()
-        graph.nodes[node_id]["debug_pairings"] = pairings.copy()
-        ########################################
+                if norm == 0: # a vector of 0 can generate when the node = next_pt 
+                    continue 
 
-        # create an identifier to the dictionary, and add the dict of pairings as the value
-        junction_pairings[node_id] = pairings # node_id: {branch1:branch2, branch2:branch1, branch3:branch4, branch4:branch3, branch5:None }
+                # don't calculate vector of a short bridge . . . . 
+                if edge_id == short_bridge:
+                    if junction == j1: 
+                        short_bridge_vector = vector / norm # . . . but while checking, calculate its vector w/ relation to j1 
+                    continue
 
+                vectors[edge_id] = vector / norm
+
+                # Identify which junction each vector belongs to
+                edge_sides[edge_id] = junction # remember that junction is a node_id
+
+
+        ### output a dict that contains the proper pairings (pair up dead-end branches with 'None' or something else)
+        if short_bridge is None: # for ordinary junctions 
+
+            pairings = pairBranches(vectors, endpoints_array, graph)
+            
+            # create an identifier to the dictionary, and add the dict of pairings as the value
+            junction_pairings[node_id] = pairings # node_id: {branch1:(branch2, ), branch2:(branch1, ), branch5:(None,) }
+
+            # add to processed nodes 
+            processed_nodes.add(j1)
+        
+        else: # for merged junctions
+
+            # make sure to include edge_sides so edges of the same junction are not paired on accident 
+            pairings = pairBranches(vectors,endpoints_array, graph, edge_sides=edge_sides)
+
+            ### We need to add a check here for if there is a prune found and the number of 
+            # vector combinations change to a number that isn't 4 ###
+            if len(pairings) != 4:  
+                vectors = {
+                    edge_id: vector
+                    for edge_id, vector in vectors.items()
+                    if edge_sides[edge_id] != j2
+                }
+                # Add the connecting bridge back into j1's vectors
+                vectors[short_bridge] = short_bridge_vector
+
+                # Match j1 as an ordinary junction
+                pairings = pairBranches(vectors, endpoints_array, graph)
+
+                # Store ordinary pairings for j1
+                junction_pairings[j1] = pairings
+
+                # Mark only j1 as processed
+                processed_nodes.add(j1)
+
+            else: # no prunes 
+                # split j1 and j2 junction pairings
+                for junction in (j1, j2): # remember that j1 = node_id. node_id is the ID of node we are iterating on right now 
+                    junction_pairings[junction] = {
+                        edge_id: (short_bridge, paired_edge) if paired_edge is not None else None
+                        for edge_id, paired_edge in pairings.items()
+                        if edge_sides[edge_id] == junction
+                    }
+
+                    # add BOTH junctions to processed nodes
+                    processed_nodes.add(j1)
+                    processed_nodes.add(j2)
+
+        
     ### Traverse the graph using nodes
 
     # initiate a list of valid roots ('valid_roots')
@@ -486,26 +613,46 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
 
             # check that opposite branch isn't in set()
                 # if not then add to individual root hair list and set()
-            if opposite_branch_id in visited_edges:
+
+            # check for merged junction and pull out the proper branch or node id
+            final_opposite_branch_id = opposite_branch_id[-1] if len(opposite_branch_id) == 2 else opposite_branch_id
+            connecting_branch_id = opposite_branch_id[0] if len(opposite_branch_id) == 2 else opposite_branch_id
+            # use overlap of connecting branch and opposing branch id's to find the connecting node id
+            connecting_node_id = None
+            if len(opposite_branch_id) == 2:
+                connecting_node_id = tuple(set(final_opposite_branch_id[:2]) & set(connecting_branch_id[:2]))[0]
+            
+            if final_opposite_branch_id in visited_edges:
                 break # no duplicates
-                 
+                
             # find opposite junction and add 
             opposite_node_id = None
-            u, v, key = opposite_branch_id # u and v are two nodes at ends of a branch 
-            opposite_node_id = v if current_node_id == u else u
+            u, v, key = final_opposite_branch_id # u and v are two nodes at ends of a branch 
+
+            if len(opposite_branch_id) == 2: # merged junction 
+                opposite_node_id = v if connecting_node_id == u else u
+            else: # normal junction 
+                opposite_node_id = v if current_node_id == u else u
 
             # check that we aren't traversing a node already traversed 
             if opposite_node_id in visited_nodes:
                 break
 
             # add edges and nodes to set and individual root
-            visited_edges.add(opposite_branch_id)
-            individual_root.append(opposite_branch_id)
-            visited_nodes.add(opposite_node_id)
-            individual_root.append(opposite_node_id)
+            if len(opposite_branch_id) == 3: # normal junction 
+                visited_edges.add(opposite_branch_id)
+                individual_root.append(opposite_branch_id)
+                visited_nodes.add(opposite_node_id)
+                individual_root.append(opposite_node_id)
+            elif len(opposite_branch_id) == 2: # merged junction 
+                visited_edges.add(connecting_branch_id)
+                visited_nodes.add(connecting_node_id)
+                visited_edges.add(final_opposite_branch_id)
+                visited_nodes.add(opposite_node_id)
+                individual_root.extend([connecting_branch_id, connecting_node_id, final_opposite_branch_id, opposite_node_id])
 
             # update incoming branch and current node for next iteration 
-            incoming_branch_id = opposite_branch_id
+            incoming_branch_id = final_opposite_branch_id
             current_node_id = opposite_node_id
 
         # use completed_paths to make sure this path has not already been traversed (no duplicate roots)
@@ -546,28 +693,6 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         length_in_microns = length_in_pixels * microscope_conversion_factor
         if length_in_microns > upper or length_in_microns < lower: 
             continue
-
-        # # Check if root hair is within a reasonable distance to the main root 
-        # # Find coordinates of 2 endpoints nodes of the individual root 
-        # start_node_id = individual_root[0]
-        # end_node_id = individual_root[-1]
-
-        # start_node = graph.nodes[start_node_id]['o']
-        # end_node = graph.nodes[end_node_id]['o']
-        # coords_of_endpoints = np.rint(np.vstack((start_node, end_node))).astype(int) # combine coordinates and round in case node has floats 
-
-        # # find proximity of endpoints to main root using main root contour coordinates 
-        # endpoint_near_root = False
-        # for y,x in coords_of_endpoints:
-        #     for n in range(1,8): # check if any of the pixels within a 8 pixel radius of the endpoint are in the contours
-        #         if (x+n, y) in coords_of_contours or (x-n, y) in coords_of_contours:
-        #             endpoint_near_root = True
-        #             break
-        #     if endpoint_near_root:
-        #         break
-        
-        # if not endpoint_near_root:
-        #     continue 
 
         # Paint blank mask with coordinates 
         grid[coords_list[:, 0], coords_list[:, 1]] = 1
