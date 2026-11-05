@@ -417,7 +417,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
                                             short_bridge = (min(u, v), max(u, v), key) # unique identifier of an edge 
 
                         
-
+        # count number of degree-3 connections to 
         short_connections_at_j1 = sum(
             1
             for u, v, key, data in graph.edges(j1, keys=True, data=True)
@@ -573,7 +573,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         individual_root = []
         # initiate set() for 'single root' 
         visited_edges = set()
-        visited_nodes = set()
+        visited_nodes = set()   
 
         # add endpoint to 'individual root' and set
         individual_root.append(endpoint_id)
