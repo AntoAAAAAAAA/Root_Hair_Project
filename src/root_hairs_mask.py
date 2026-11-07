@@ -326,7 +326,7 @@ def pairBranches(vectors, endpoints_array, graph, edge_sides = None):
     return pairings
 
 import sknw
-def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower):
+def reconstructRootHairs(skeletonized_hairs, contours, microscope_conversion_factor, upper, lower):
     '''Breaks skeleton mask of root hairs into individual root hair masks. Primarily used
     for main_v3 workflow.
     
@@ -716,8 +716,8 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             # 'cropped_component_mask': cropped_component_mask,
             'length': length_in_pixels,
             'length in microns': length_in_microns,
-            'edge_ids': list_edge_ids.copy(),
-            'node_ids': individual_root[0::2].copy(),
+            # 'edge_ids': list_edge_ids.copy(),
+            # 'node_ids': individual_root[0::2].copy(),
         })
     
     return valid_root_hair_masks, graph
