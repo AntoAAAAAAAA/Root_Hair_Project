@@ -1,4 +1,3 @@
-
 # -*- mode: python ; coding: utf-8 -*-
 
 from pathlib import Path
@@ -163,14 +162,16 @@ pyz = PYZ(a.pure)
 
 
 # ---------------------------------------------------------
-# Windows executable
+# Windows executable (ONEFILE)
 # ---------------------------------------------------------
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
 
-    exclude_binaries=True,
+    exclude_binaries=False,
 
     name="RootHairAnalyzer",
 
@@ -183,20 +184,4 @@ exe = EXE(
 
     disable_windowed_traceback=False,
     argv_emulation=False,
-)
-
-
-# ---------------------------------------------------------
-# One-folder distribution
-# ---------------------------------------------------------
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-
-    strip=False,
-    upx=False,
-    upx_exclude=[],
-
-    name="RootHairAnalyzer",
 )
