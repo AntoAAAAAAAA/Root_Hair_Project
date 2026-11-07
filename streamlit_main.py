@@ -63,7 +63,7 @@ def initalize_predictor():
     predictor.initialize_from_trained_model_folder(
     str(MODEL_DIR),
     use_folds=(0,),
-    checkpoint_name="checkpoint_final.pth"
+    checkpoint_name="checkpoint_best.pth"
     )
 
     return predictor 
