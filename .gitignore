@@ -48,5 +48,5 @@ test.py
 desktop-app-environment.yml
 # desktop_testing.py
 # desktop_testing_windows.spec
-streamlit_diagnostics.py
-streamlit_main_testing.py
+# streamlit_diagnostics.py
+# streamlit_main_testing.py
