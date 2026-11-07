@@ -393,6 +393,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         j1 = node_id
         j2 = None
         short_bridge = None
+        distance_threshold = 25 # manual value for the max length ('weight') of short-bridge
         if graph.degree(node_id) == 3: # check that this node is degree 3 
             for u, v, key, data in graph.edges(node_id, keys=True, data=True):
                 next_node_id = v if u == node_id else u 
@@ -401,16 +402,16 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
                     continue
                 if graph.degree(next_node_id) == 3: # check that a surrounding edge is attached to a node of degree 3
                     distance = data['weight']
-                    if distance < 15:
-                         # Check whether j2 ALSO has exactly one eligible short bridge, which must be
-                         # the same edge connecting j1 and j2
+                    if distance < distance_threshold:
+                        # Check whether j2 ALSO has exactly one eligible short bridge, which must be
+                        # the same edge connecting j1 and j2
                         j2 = next_node_id
 
                         for u2, v2, key2, data2 in graph.edges(j2, keys=True, data=True):
                             next_node_id2 = v2 if u2 == j2 else u2
                             if graph.degree(next_node_id2) == 3: # check that a surrounding edge is attached to a node of degree 3
                                 distance2 = data2['weight']
-                                if distance2 < 15 and j2 not in processed_nodes: # distance is again good and j2 hasn't been processed yet 
+                                if distance2 < distance_threshold and j2 not in processed_nodes: # distance is again good and j2 hasn't been processed yet 
                                         shortbridgecounter += 1
                                         if (min(u,v), max(u,v), key) == (min(u2,v2), max(u2,v2), key2): # if edges are the same . . . 
                                             # . . . we have a short bridge
@@ -496,10 +497,10 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
                 if norm == 0: # a vector of 0 can generate when the node = next_pt 
                     continue 
 
-                # don't calculate vector of a short bridge . . . . 
+                # don't store vector of a short bridge ....
                 if edge_id == short_bridge:
                     if junction == j1: 
-                        short_bridge_vector = vector / norm # . . . but while checking, calculate its vector w/ relation to j1 
+                        short_bridge_vector = vector / norm # ...but while checking, calculate its vector w/ relation to j1 
                     continue
 
                 vectors[edge_id] = vector / norm
@@ -606,17 +607,15 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             if current_node_id not in junction_pairings:
                 break
 
-            # look up junction, use branch pairing to find opposite branch
+            # find opposite branch from pairings using the current node
             opposite_branch_id = junction_pairings[current_node_id].get(incoming_branch_id)
             if opposite_branch_id == None:
                 break # Stop loop once a branch terminates at a junction 
 
-            # check that opposite branch isn't in set()
-                # if not then add to individual root hair list and set()
-
             # check for merged junction and pull out the proper branch or node id
             final_opposite_branch_id = opposite_branch_id[-1] if len(opposite_branch_id) == 2 else opposite_branch_id
             connecting_branch_id = opposite_branch_id[0] if len(opposite_branch_id) == 2 else opposite_branch_id
+                # note: merged junction shape --> [connecting_branch_id, actual_opposite_branch_id]
             # use overlap of connecting branch and opposing branch id's to find the connecting node id
             connecting_node_id = None
             if len(opposite_branch_id) == 2:
@@ -625,13 +624,15 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
             if final_opposite_branch_id in visited_edges:
                 break # no duplicates
                 
-            # find opposite junction and add 
+            # find opposite junction/node and add 
             opposite_node_id = None
-            u, v, key = final_opposite_branch_id # u and v are two nodes at ends of a branch 
+            u, v, key = final_opposite_branch_id # u and v are two nodes at ends of branch 
 
-            if len(opposite_branch_id) == 2: # merged junction 
+            if len(opposite_branch_id) == 2: 
+                # merged junction 
                 opposite_node_id = v if connecting_node_id == u else u
-            else: # normal junction 
+            else:                           
+                # normal junction 
                 opposite_node_id = v if current_node_id == u else u
 
             # check that we aren't traversing a node already traversed 
@@ -659,12 +660,17 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         list_edge_ids = individual_root[1::2]
         forward = tuple(list_edge_ids) 
         backward = tuple(reversed(list_edge_ids))
+
+        # create a unique signature for each individual root using its list of id's 
         root_hair_signature = min(forward, backward)
 
+        
+        # append the individual root hair list to list of final root hairs if not a duplicate 
         if root_hair_signature in completed_paths:
             continue
-        completed_paths.add(root_hair_signature)
-        # append the individual root hair list to list for final root hairs if not a duplicate 
+        else: 
+            completed_paths.add(root_hair_signature)
+
         valid_roots.append(individual_root)
 
 
@@ -699,7 +705,7 @@ def extractAndFilterRootHairs(skeletonized_hairs, contours, microscope_conversio
         root_hair_mask = grid
         
         # Create a dilated/thicker mask of the root hair (for visualization purposes)
-        kernel = np.ones((4,4), np.uint8)
+        kernel = np.ones((3,3), np.uint8)
         thicker_mask = cv2.dilate(root_hair_mask, kernel, iterations=1)
 
         ### append dictionary to final list that contains final information for each individual root 
