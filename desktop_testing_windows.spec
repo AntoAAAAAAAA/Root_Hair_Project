@@ -67,9 +67,6 @@ projectDatas = [
     ("src", "src"),
     (".streamlit", ".streamlit"),
 
-    # SAM model weights
-    ("sam2_l.pt", "."),
-
     # nnU-Net model weights and configuration
     ("Compressed_Unet2", "Compressed_Unet2"),
 ]
