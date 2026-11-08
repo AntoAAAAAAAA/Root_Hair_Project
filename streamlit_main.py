@@ -198,8 +198,12 @@ def selectImage(image_gray, fig_input, display_idx, traces: list):
         selected_trace = traces[trace_idx][0]
         fig.add_trace(selected_trace)
 
-    fig.update_yaxes(visible=False)
-    fig.update_xaxes(visible=False)
+    if fig_input.layout.xaxis.range is not None:
+        fig.update_xaxes(range=fig_input.layout.xaxis.range, visible=False)
+
+    if fig_input.layout.yaxis.range is not None:
+        fig.update_yaxes(range=fig_input.layout.yaxis.range, visible=False)
+
 
     return fig 
 
@@ -244,7 +248,6 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                         
                     results = main_v3(image_gray, microscope_conversion_factor, analysis_upper, lower, model)
                     fig, traces = results['fig'], results['traces']
-                    st.session_state[tracesKey] = traces
                     st.session_state[figKey] = fig
                     
 
@@ -281,7 +284,7 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                     image_gray = st.session_state[imageGrayKey],
                     fig_input = st.session_state[figKey],
                     display_idx= st.session_state[displayIdxKey],
-                    traces= st.session_state[tracesKey]
+                    traces= st.session_state[tracesKey],
                     )
                 
         with colu3:
@@ -331,6 +334,7 @@ with col1:
     plotlyKey = 'plotly1'
     colListKey = 'col1_list'
     T = 'T0'
+
     # threshold = threshold_input
 
     column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKey, conversionFactorKey, tracesKey,

@@ -33,6 +33,8 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
     #     overlay[ind_mask == 255] = [255, 0 , 0]
 
     traces = []
+    all_x_coords = []
+    all_y_coords = []
     for i in range(0, len(valid_root_hair_masks)):
         valid_dict = valid_root_hair_masks[i]
         ind_mask = (valid_dict['thicker mask']).astype(float)
@@ -42,6 +44,8 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
         length = valid_dict['length in microns']
 
         y_coords, x_coords = np.where(ind_mask > 0)
+        all_x_coords.extend(x_coords)
+        all_y_coords.extend(y_coords)
         trace = go.Scattergl(
             x=x_coords, y=y_coords, mode="markers",
             marker=dict(size=3, color = "#06C9FF"),
@@ -59,9 +63,26 @@ def makeFinalPlotlyVisual(image_gray, valid_root_hair_masks):
     list_traces = [trace for trace, length in traces]
     fig.add_traces(list_traces)
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), showlegend=False)
-    fig.update_xaxes(visible=False)
-    fig.update_yaxes(visible=False)
+
+    # crop fig so that it zooms in on entire root 
+    x_min, x_max, y_min, y_max = None, None, None, None
+    if list_traces:
+        x_padding = 250
+        y_padding = 100
+
+        x_min = max(0, min(all_x_coords) - x_padding)
+        x_max = min(image_gray.shape[1], max(all_x_coords) + x_padding)
+
+        y_min = max(0, min(all_y_coords) - y_padding)
+        y_max = min(image_gray.shape[0], max(all_y_coords) + y_padding)
+
+        fig.update_xaxes(range=[x_min, x_max], visible=False)
+        fig.update_yaxes(range=[y_max, y_min], visible=False)
+    else:
+        fig.update_xaxes(visible=False)
+        fig.update_yaxes(visible=False)
     # fig.show()
+
     return fig, traces
 
 def makeVisualOfContours(image_gray, contours):
