@@ -716,8 +716,8 @@ def reconstructRootHairs(skeletonized_hairs, contours, microscope_conversion_fac
             # 'cropped_component_mask': cropped_component_mask,
             'length': length_in_pixels,
             'length in microns': length_in_microns,
-            # 'edge_ids': list_edge_ids.copy(),
-            # 'node_ids': individual_root[0::2].copy(),
+            'edge_ids': list_edge_ids.copy(),
+            'node_ids': individual_root[0::2].copy(),
         })
     
     return valid_root_hair_masks, graph

@@ -175,7 +175,7 @@ with column2:
         min_value=0.0, 
         step=0.1, 
         format='%.1f',
-        value= 30.0)
+        value= 3.0)
 
 ## -----Threshold Input--------
 # threshold_input = column1.slider('Select a threshold value (stable medium is 170):', 80, 255, 
@@ -239,8 +239,10 @@ def column(uploadKey, imageGrayKey, imageColorKey, imageCaption, analyzeButtonKe
                 with st.spinner('', show_time=True):
                     image_gray = st.session_state[imageGrayKey]
                     image_color = st.session_state[imageColorKey]
-
-                    results = main_v3(image_gray, microscope_conversion_factor, upper, lower, model)
+    
+                    analysis_upper = 1000 if T == 'T1' else upper
+                        
+                    results = main_v3(image_gray, microscope_conversion_factor, analysis_upper, lower, model)
                     fig, traces = results['fig'], results['traces']
                     st.session_state[tracesKey] = traces
                     st.session_state[figKey] = fig
