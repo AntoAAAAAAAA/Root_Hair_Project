@@ -66,6 +66,9 @@ def initalize_predictor():
     checkpoint_name="checkpoint_best.pth"
     )
 
+    if device.type == 'cpu':
+        predictor.network = torch.compile(predictor.network, backend='openvino')
+
     return predictor 
 
 model = initalize_predictor()
