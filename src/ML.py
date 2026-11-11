@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import sys
 
+from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
 
 def nnUnet(image_gray, predictor):
     '''Runs the input image from Streamlit into the nnUnet ML model'''
@@ -14,22 +15,15 @@ def nnUnet(image_gray, predictor):
         temp_dir = Path(temp_dir)
         input_path = temp_dir / 'root_0000.png'
 
+        # replace temporary .png with image_gray 
         cv2.imwrite(str(input_path), image_gray)
 
-        predictions = predictor.predict_from_files(
-            [[str(input_path)]],
-            None,
-            save_probabilities=False,
-            overwrite=True,
-            num_processes_preprocessing=1,
-            num_processes_segmentation_export=1,
-            folder_with_segs_from_prev_stage=None,
-            num_parts=1,
-            part_id=0
-        )
-        segmentation = predictions[0]
+        # straight from nnUnetv2 example code 
+        img, props = SimpleITKIO().read_images([str(input_path)])
+        predictions = predictor.predict_single_npy_array(img, props, None, None, False)
+        segmentation = predictions
 
-        return np.asarray(segmentation)
+        return segmentation
 
 def get_torch_device():
     """Select the best available PyTorch device."""
