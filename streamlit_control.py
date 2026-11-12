@@ -1,5 +1,29 @@
 import streamlit as st
 
+import os
+import sys
+import psutil
+import torch
+
+# Configure CPU inference on Windows computers without CUDA
+if sys.platform == "win32" and not torch.cuda.is_available():
+
+    physical_cores = psutil.cpu_count(logical=False)
+    logical_cores = os.cpu_count()
+
+    cpu_threads = max(
+        1,
+        min(12, physical_cores or logical_cores or 4)
+    )
+
+    # nnU-Net reads this setting during import
+    os.environ["nnUNet_def_n_proc"] = str(cpu_threads)
+
+    # Configure PyTorch CPU parallelism
+    torch.set_num_threads(cpu_threads)
+
+    print(f"Configured CPU inference: {cpu_threads} threads")
+    
 instr = st.Page("streamlit_instr.py", title="Instructions")
 main_page = st.Page("streamlit_main.py", title="Root Hair Analyzer")
 

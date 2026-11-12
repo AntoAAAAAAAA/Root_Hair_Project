@@ -66,63 +66,6 @@ def initalize_predictor():
     checkpoint_name="checkpoint_best.pth"
     )
 
-
-    ########### OPENVINO TESTING ###########
-
-    print(f"PyTorch device: {device}")
-
-    if device.type == "cpu":
-        import openvino as ov
-        import openvino.torch
-
-        core = ov.Core()
-        available = core.available_devices
-
-        # Display all available OpenVINO devices
-        for ov_device in available:
-            name = core.get_property(
-                ov_device, "FULL_DEVICE_NAME"
-            )
-            print(f"OpenVINO {ov_device}: {name}")
-
-        # Find supported Intel GPUs
-        gpu_devices = [
-            d for d in available
-            if d == "GPU" or d.startswith("GPU.")
-        ]
-
-        if gpu_devices:
-            target = gpu_devices[0]
-            print(f"Selected OpenVINO target: {target}")
-
-            # Persistent cache outside the packaged application
-            cache_dir = Path(
-                user_cache_dir(
-                    "Root Hair Analyzer",
-                    appauthor=False
-                )
-            ) / "openvino"
-
-            cache_dir.mkdir(parents=True, exist_ok=True)
-
-            # Compile nnU-Net network using OpenVINO
-            predictor.network = torch.compile(
-                predictor.network,
-                backend="openvino",
-                options={
-                    "device": target,
-                    "model_caching": True,
-                    "cache_dir": str(cache_dir)
-                }
-            )
-
-            print("OpenVINO compilation configured.")
-        
-        else:
-            print("No OpenVINO GPU found. Using PyTorch CPU.")
-
-    ########### END OPENVINO TESTING ###########
-
     return predictor 
 
 model = initalize_predictor()
