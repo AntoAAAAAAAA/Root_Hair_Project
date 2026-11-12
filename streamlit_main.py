@@ -13,6 +13,7 @@ from src.main_v3 import *
 from src.ML import get_torch_device
 import json
 from platformdirs import user_data_dir, user_cache_dir
+from desktop_testing import getResourcePath
 
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
 import torch
@@ -22,12 +23,6 @@ from pathlib import Path
 
 
 ### -----Session State Initiations--------
-
-# @st.cache_resource(show_spinner=False, show_time=False)
-# def loadSamModel():
-#     return SAM("sam2_l.pt")
-
-# model = loadSamModel()
 
 @st.cache_resource(show_spinner=False, show_time=True)
 def initalize_predictor():
@@ -42,19 +37,10 @@ def initalize_predictor():
         perform_everything_on_device=False,
         device=device,
         verbose=False,
-        verbose_preprocessing=False,
-        allow_tqdm=False
+        verbose_preprocessing=False
     )
-    def get_resource_path(relative_path):
-        if getattr(sys, "frozen", False):
-            base_path = Path(sys._MEIPASS)
-        else:
-            base_path = Path(__file__).resolve().parent
 
-        return base_path / relative_path
-
-
-    MODEL_DIR = get_resource_path("Compressed_Unet2")
+    MODEL_DIR = getResourcePath("Compressed_Unet2")
     os.environ["nnUNet_extTrainer"] = str(MODEL_DIR)
 
     if str(MODEL_DIR) not in sys.path:
@@ -105,11 +91,7 @@ if 'length2' not in st.session_state:
     st.session_state['length2'] = None
 
 
-app_data_dir = Path(
-    user_data_dir(
-        appname="Root Hair Analyzer",
-        appauthor=False
-    ))
+app_data_dir = Path(user_data_dir(appname="Root Hair Analyzer", appauthor=False))
 app_data_dir.mkdir(parents=True, exist_ok=True)
 data_file = app_data_dir / "data.json"
 if not data_file.exists():
@@ -117,16 +99,8 @@ if not data_file.exists():
         "col1": [],
         "col2": []
     }
-    with open(data_file, "w", encoding="utf-8") as file:
+    with open(data_file, "w") as file:
         json.dump(default_data, file, indent=2)
-
-cache_dir = Path(
-    user_cache_dir(
-        "Root Hair Analyzer",
-        appauthor=False
-    )
-) / "openvino"
-cache_dir.mkdir(parents=True, exist_ok=True)
 
 with open(data_file, 'r') as file:
     col_dict = json.load(file)
