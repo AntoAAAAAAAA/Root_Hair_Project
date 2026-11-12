@@ -44,10 +44,10 @@ RootHairAnalyzer.exe.zip
 
 test.py
 
-Compressed_Unet2/
+# Compressed_Unet2/
 desktop-app-environment.yml
-desktop_testing.py
-desktop_testing_windows.spec
+# desktop_testing.py
+# desktop_testing_windows.spec
 desktop_testing.spec
 streamlit_diagnostics.py
 streamlit_main_testing.py
