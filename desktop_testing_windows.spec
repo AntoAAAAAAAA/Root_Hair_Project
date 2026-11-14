@@ -128,6 +128,8 @@ allHiddenImports = list(
 
             "platformdirs",
             "sknw",
+
+            "desktop_testing"
         ]
     )
 )
