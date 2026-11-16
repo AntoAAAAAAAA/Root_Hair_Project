@@ -30,7 +30,7 @@ st.write(
     """#### 1) Enter analysis settings
 - Enter the **microscope conversion factor** for the microscope used to capture the images.
 - Set the **upper** and **lower** length thresholds for valid root hairs.
-- Recommended starting values: **110 µm** for the upper threshold and **10 µm** for the lower threshold.
+- Recommended starting values: **100 µm** for the upper threshold and **3 µm** for the lower threshold.
 """
 )
 
@@ -50,22 +50,20 @@ st.write(
 
 st.write(
     """#### 4) Review individual root hairs
-- Use the **Previous** and **Next** buttons to cycle through detected root hairs one at a time.
-- Hover over a highlighted root hair to view its measured length.
-- The currently selected root hair length will also be displayed beneath the image.
+- Use the **arrow** buttons to cycle through detected root hairs one at a time. (It is recommended to start cycling from the bottom)
+- The currently selected root hair's length will be displayed above the analysis image.
 """
 )
 
 st.write(
     """#### 5) Add measurements to the table
-- If a highlighted root hair appears correct, click **Add to Table** to add that measurement to the T0 or T1 column below.
-- When possible, add matching **T0** and **T1** measurements to the same row so they remain paired for later analysis.
+- If a highlighted root hair appears accurately on both T0 and T1 images, click **Add to Table** to add that measurement to the table below.
 """
 )
 
 st.write(
     """#### 6) Export / transfer measurements
-- The table at the bottom of the page can be copied into an Excel worksheet for downstream analysis.
+- The table at the bottom of the page can be copied into an Excel worksheet for further analysis.
 """
 )
 
