@@ -52,3 +52,4 @@ desktop_testing.spec
 streamlit_diagnostics.py
 streamlit_main_testing.py
 dmg/
+dependencies.yml
