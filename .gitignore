@@ -44,13 +44,18 @@ RootHairAnalyzer.exe.zip
 
 test.py
 
-# Compressed_Unet2/
-# desktop-app-environment.yml
-# desktop_testing.py
-# desktop_testing_windows.spec
-# desktop_testing.spec
-# streamlit_diagnostics.py
-# streamlit_main_testing.py
+Compressed_Unet2/
+desktop-app-environment.yml
+desktop-app-pinned.txt
+desktop-app-portable.yml
+desktop_testing.py
+desktop_testing_windows.spec
+desktop_testing.spec
+streamlit_diagnostics.py
+streamlit_main_testing.py
 dmg/
 inno/
-# dependencies.yml
+dependencies.yml
+RootHairAnalyzer_onefile.iss
+mac_environment.yml
+mac_requirements.txt
