@@ -56,6 +56,5 @@ streamlit_main_testing.py
 dmg/
 inno/
 dependencies.yml
-RootHairAnalyzer_onefile.iss
 mac_environment.yml
 mac_requirements.txt
