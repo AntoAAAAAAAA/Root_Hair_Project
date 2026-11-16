@@ -1,0 +1,5 @@
+name: desktop-app
+channels:
+  - defaults
+dependencies:
+  - python=3.12
